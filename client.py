@@ -8,6 +8,7 @@ Functions for creating and configuring the Claude Agent SDK client.
 import json
 import os
 from pathlib import Path
+from typing import Optional
 
 from claude_code_sdk import ClaudeCodeOptions, ClaudeSDKClient
 from claude_code_sdk.types import HookMatcher
@@ -15,43 +16,70 @@ from claude_code_sdk.types import HookMatcher
 from security import bash_security_hook
 
 
-# Puppeteer MCP tools for browser automation
-PUPPETEER_TOOLS = [
-    "mcp__puppeteer__puppeteer_navigate",
-    "mcp__puppeteer__puppeteer_screenshot",
-    "mcp__puppeteer__puppeteer_click",
-    "mcp__puppeteer__puppeteer_fill",
-    "mcp__puppeteer__puppeteer_select",
-    "mcp__puppeteer__puppeteer_hover",
-    "mcp__puppeteer__puppeteer_evaluate",
-]
+def get_linear_oauth_from_credentials() -> Optional[dict]:
+    """
+    Extract Linear OAuth credentials from Claude Code's global config.
+
+    Returns dict with 'accessToken' and 'serverUrl' if found, None otherwise.
+    """
+    credentials_path = Path.home() / ".claude" / ".credentials.json"
+    if not credentials_path.exists():
+        return None
+
+    try:
+        with open(credentials_path) as f:
+            creds = json.load(f)
+
+        # Find Linear MCP OAuth entry (key format: "linear-server|{hash}")
+        mcp_oauth = creds.get("mcpOAuth", {})
+        for key, value in mcp_oauth.items():
+            if key.startswith("linear-server"):
+                access_token = value.get("accessToken")
+                server_url = value.get("serverUrl")
+                if access_token and server_url:
+                    return {
+                        "accessToken": access_token,
+                        "serverUrl": server_url,
+                    }
+    except (json.JSONDecodeError, KeyError, TypeError):
+        pass
+
+    return None
+
 
 # Linear MCP tools for project management
-# Official Linear MCP server at mcp.linear.app
+# Official Linear MCP server at mcp.linear.app (server name: linear-server)
 LINEAR_TOOLS = [
     # Team & Project discovery
-    "mcp__linear__list_teams",
-    "mcp__linear__get_team",
-    "mcp__linear__list_projects",
-    "mcp__linear__get_project",
-    "mcp__linear__create_project",
-    "mcp__linear__update_project",
+    "mcp__linear-server__list_teams",
+    "mcp__linear-server__get_team",
+    "mcp__linear-server__list_projects",
+    "mcp__linear-server__get_project",
+    "mcp__linear-server__create_project",
+    "mcp__linear-server__update_project",
     # Issue management
-    "mcp__linear__list_issues",
-    "mcp__linear__get_issue",
-    "mcp__linear__create_issue",
-    "mcp__linear__update_issue",
-    "mcp__linear__list_my_issues",
+    "mcp__linear-server__list_issues",
+    "mcp__linear-server__get_issue",
+    "mcp__linear-server__create_issue",
+    "mcp__linear-server__update_issue",
     # Comments
-    "mcp__linear__list_comments",
-    "mcp__linear__create_comment",
+    "mcp__linear-server__list_comments",
+    "mcp__linear-server__create_comment",
     # Workflow
-    "mcp__linear__list_issue_statuses",
-    "mcp__linear__get_issue_status",
-    "mcp__linear__list_issue_labels",
+    "mcp__linear-server__list_issue_statuses",
+    "mcp__linear-server__get_issue_status",
+    "mcp__linear-server__list_issue_labels",
+    "mcp__linear-server__create_issue_label",
     # Users
-    "mcp__linear__list_users",
-    "mcp__linear__get_user",
+    "mcp__linear-server__list_users",
+    "mcp__linear-server__get_user",
+    # Cycles
+    "mcp__linear-server__list_cycles",
+    # Documents
+    "mcp__linear-server__list_documents",
+    "mcp__linear-server__get_document",
+    "mcp__linear-server__create_document",
+    "mcp__linear-server__update_document",
 ]
 
 # Built-in tools
@@ -89,12 +117,8 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
             "Run 'claude setup-token after installing the Claude Code CLI."
         )
 
+    # Linear API key is optional - if not set, assumes user has Linear MCP configured globally
     linear_api_key = os.environ.get("LINEAR_API_KEY")
-    if not linear_api_key:
-        raise ValueError(
-            "LINEAR_API_KEY environment variable not set.\n"
-            "Get your API key from: https://linear.app/YOUR-TEAM/settings/api"
-        )
 
     # Create comprehensive security settings
     # Note: Using relative paths ("./**") restricts access to project directory
@@ -113,10 +137,10 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
                 # Bash permission granted here, but actual commands are validated
                 # by the bash_security_hook (see security.py for allowed commands)
                 "Bash(*)",
-                # Allow Puppeteer MCP tools for browser automation
-                *PUPPETEER_TOOLS,
                 # Allow Linear MCP tools for project management
                 *LINEAR_TOOLS,
+                # Note: Browser automation uses dev-browser skill via Bash scripts
+                # (no MCP tools needed - uses Playwright directly)
             ],
         },
     }
@@ -133,30 +157,50 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
     print("   - Sandbox enabled (OS-level bash isolation)")
     print(f"   - Filesystem restricted to: {project_dir.resolve()}")
     print("   - Bash commands restricted to allowlist (see security.py)")
-    print("   - MCP servers: puppeteer (browser automation), linear (project management)")
+    print("   - Browser automation: dev-browser skill (Playwright via Bash scripts)")
+    print("   - MCP servers: linear (project management)")
     print()
+
+    # Configure MCP servers
+    # Linear MCP: try API key first, then OAuth from credentials
+    # Note: Browser automation uses dev-browser skill via Bash scripts, not MCP
+    mcp_servers = {}
+
+    if linear_api_key:
+        # Linear MCP with HTTP transport using API key
+        mcp_servers["linear-server"] = {
+            "type": "http",
+            "url": "https://mcp.linear.app/mcp",
+            "headers": {
+                "Authorization": f"Bearer {linear_api_key}"
+            }
+        }
+        print("   - Linear MCP: using LINEAR_API_KEY")
+    else:
+        # Try to extract OAuth token from Claude Code global config
+        linear_oauth = get_linear_oauth_from_credentials()
+        if linear_oauth:
+            # Linear MCP with SSE transport using OAuth token
+            mcp_servers["linear-server"] = {
+                "type": "sse",
+                "url": linear_oauth["serverUrl"],
+                "headers": {
+                    "Authorization": f"Bearer {linear_oauth['accessToken']}"
+                }
+            }
+            print("   - Linear MCP: using OAuth from ~/.claude/.credentials.json")
+        else:
+            print("   - Linear MCP: NOT CONFIGURED (set LINEAR_API_KEY or authenticate via Claude Code)")
 
     return ClaudeSDKClient(
         options=ClaudeCodeOptions(
             model=model,
-            system_prompt="You are an expert full-stack developer building a production-quality web application. You use Linear for project management and tracking all your work.",
+            system_prompt="You are an expert full-stack developer building a production-quality web application. You use Linear for project management and tracking all your work. For browser automation, you use the dev-browser skill via Bash scripts with Playwright.",
             allowed_tools=[
                 *BUILTIN_TOOLS,
-                *PUPPETEER_TOOLS,
                 *LINEAR_TOOLS,
             ],
-            mcp_servers={
-                "puppeteer": {"command": "npx", "args": ["puppeteer-mcp-server"]},
-                # Linear MCP with Streamable HTTP transport (recommended over SSE)
-                # See: https://linear.app/docs/mcp
-                "linear": {
-                    "type": "http",
-                    "url": "https://mcp.linear.app/mcp",
-                    "headers": {
-                        "Authorization": f"Bearer {linear_api_key}"
-                    }
-                }
-            },
+            mcp_servers=mcp_servers,
             hooks={
                 "PreToolUse": [
                     HookMatcher(matcher="Bash", hooks=[bash_security_hook]),
