@@ -1,0 +1,557 @@
+<project_specification>
+  <project_name>breneman-prospecting-agent</project_name>
+
+  <app_type>dashboard</app_type>
+  <!--
+  Using "dashboard" archetype for prospect management dashboard.
+  This pre-installs: Card, Table, Badge, Progress, Chart components.
+  -->
+
+  <overview>
+    An AI-powered Seller Prospecting Agent dashboard for Breneman Advisors, a Northern Michigan M&A advisory firm. The application monitors mock business owner data for exit-readiness signals, scores prospects using the Breneman Trilogy of Value framework (cash flow strength, management depth, growth potential), and displays prioritized opportunities in a stunning modern dashboard. This POC demonstrates the value of systematic AI prospecting to convince Breneman to proceed with the full production system.
+
+    Design goal: Modern SaaS aesthetic (Linear, Vercel, Stripe quality) with professional polish to impress the client.
+  </overview>
+
+  <technology_stack>
+    <api_key>
+        Claude Agent SDK requires ANTHROPIC_API_KEY for agent functionality.
+        For the POC, agents can be simulated with mock scoring if API key not available.
+    </api_key>
+    <frontend>
+      <framework>Next.js 14+ with App Router</framework>
+      <styling>Tailwind CSS with shadcn/ui components</styling>
+      <state_management>React hooks, Convex real-time subscriptions</state_management>
+      <routing>Next.js App Router</routing>
+      <port>Only launch on port 3000</port>
+      <additional>
+        - Framer Motion for smooth animations
+        - Recharts or shadcn charts for data visualization
+        - next-themes for dark/light mode
+        - Lucide React for icons
+      </additional>
+    </frontend>
+    <backend>
+      <runtime>Convex serverless functions (TypeScript)</runtime>
+      <database>Convex (real-time document database)</database>
+      <additional>
+        - Claude Agent SDK (TypeScript) for Scanner and Scorer agents
+        - Agents run as Convex actions or API routes
+      </additional>
+    </backend>
+    <communication>
+      <api>Convex client-server protocol (real-time)</api>
+      <additional>
+        - Real-time updates when scores change
+        - Optimistic updates for UI responsiveness
+      </additional>
+    </communication>
+  </technology_stack>
+
+  <prerequisites>
+    <environment_setup>
+      - Convex project initialized with `npx convex dev`
+      - Clerk authentication configured (can use test keys for POC)
+      - Environment variables in .env.local:
+        - CONVEX_DEPLOYMENT
+        - NEXT_PUBLIC_CONVEX_URL
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        - CLERK_SECRET_KEY
+        - ANTHROPIC_API_KEY (optional for POC)
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <data_layer>
+      - Convex schema: prospects, owners, companies, signals, scores tables
+      - Mock data seeder: 50+ Northern Michigan businesses with realistic data
+      - Signal type definitions: 7 categories (demographics, succession, behavioral, intent, leadership, financial, industry)
+      - Location focus: Traverse City, Marquette, Petoskey, Charlevoix, Alpena, Cadillac
+      - Industries: Manufacturing, Healthcare, Tourism, Professional Services, Construction, Agriculture
+    </data_layer>
+
+    <scanner_agent>
+      - Claude Agent SDK subagent definition for signal detection
+      - Queries Convex for all prospects
+      - Evaluates each against 7 exit signal types
+      - Flags prospects showing multiple signals
+      - Outputs flagged list with detected signals
+      - Can run manually via "Run Analysis" button or scheduled
+    </scanner_agent>
+
+    <scorer_agent>
+      - Claude Agent SDK subagent definition for scoring
+      - Implements Breneman Trilogy of Value scoring:
+        * Cash flow strength (weight: 0.35) - revenue stability, profitability indicators
+        * Management depth (weight: 0.35) - leadership team strength, succession readiness
+        * Growth potential (weight: 0.30) - market position, expansion opportunities
+      - Calculates Exit Likelihood Score (0-100)
+      - Calculates Breneman Fit Score (0-100)
+      - Stores scores in Convex with timestamp
+    </scorer_agent>
+
+    <dashboard_home>
+      - Hero stats cards: Total prospects, High-priority count, New signals this week
+      - Top 5 prospects list with mini score badges
+      - Signal distribution pie/bar chart
+      - Recent activity feed
+      - "Run Analysis" button to trigger Scanner + Scorer agents
+      - Last analysis timestamp
+    </dashboard_home>
+
+    <prospect_list_view>
+      - Sortable data table with columns:
+        * Company name (linked to detail)
+        * Owner name
+        * Industry
+        * Location
+        * Exit Score (color-coded: green 80+, yellow 50-79, red <50)
+        * Fit Score (color-coded)
+        * Signal count (badge)
+      - Filters: score range slider, industry dropdown, location dropdown, signal type multi-select
+      - Search: by company name or owner name
+      - Pagination or infinite scroll
+      - Export to CSV button
+    </prospect_list_view>
+
+    <prospect_detail_view>
+      - Company information card: name, industry, location, revenue estimate, employee count
+      - Owner profile card: name, age, ownership tenure, LinkedIn activity score
+      - Dual score display: two large circular gauges for Exit and Fit scores
+      - Signal breakdown: list of all detected signals with:
+        * Signal type badge (color-coded by category)
+        * Specific indicator text
+        * Data source (ZoomInfo, LinkedIn, PitchBook)
+        * Detection date
+      - Scoring explanation: AI-generated text explaining why scores are high/low
+      - Recommended action: suggested outreach approach based on signals
+      - Back to list button
+    </prospect_detail_view>
+
+    <weekly_briefing_view>
+      - Top 10 prospects of the week (ranked by combined score)
+      - Each with: company name, scores, top 3 signals, recommended action
+      - New signals detected this week section
+      - Comparison to last week (new entries, score changes)
+      - Print/PDF export button for client meetings
+    </weekly_briefing_view>
+
+    <ui_components>
+      - ScoreGauge: circular progress gauge with gradient colors
+      - SignalBadge: colored badge for signal types (7 colors for 7 types)
+      - ProspectCard: compact card for list/grid views
+      - StatCard: dashboard stat with icon, value, trend indicator
+      - DataTable: sortable, filterable table with pagination
+      - ScoreBar: horizontal bar showing score with color fill
+    </ui_components>
+
+    <polish_features>
+      - Dark/light mode toggle with system preference detection
+      - Smooth page transitions with Framer Motion
+      - Loading skeletons for data fetching
+      - Empty states with helpful illustrations
+      - Toast notifications for actions
+      - Responsive design: mobile, tablet, desktop breakpoints
+    </polish_features>
+  </core_features>
+
+  <database_schema>
+    <tables>
+      <companies>
+        - _id (Convex ID, primary key)
+        - name (string, required)
+        - industry (string: manufacturing, healthcare, tourism, professional_services, construction, agriculture)
+        - location (string: traverse_city, marquette, petoskey, charlevoix, alpena, cadillac)
+        - revenueEstimate (string: "$1M-$3M", "$3M-$5M", "$5M-$10M", "$10M+")
+        - employeeCount (number)
+        - foundedYear (number)
+        - createdAt (number, timestamp)
+      </companies>
+
+      <owners>
+        - _id (Convex ID, primary key)
+        - companyId (reference -> companies)
+        - name (string, required)
+        - age (number)
+        - ownershipTenureYears (number)
+        - linkedinActivityScore (number, 0-100)
+        - hasFamilySuccessor (boolean)
+        - recentLeadershipHires (array of strings)
+        - email (string, optional)
+        - phone (string, optional)
+      </owners>
+
+      <signals>
+        - _id (Convex ID, primary key)
+        - companyId (reference -> companies)
+        - signalType (string: owner_demographics, succession_gap, behavioral, intent, leadership, financial, industry)
+        - indicator (string, human-readable description)
+        - dataSource (string: zoominfo, linkedin, pitchbook)
+        - weight (number, 0.0-1.0)
+        - detectedAt (number, timestamp)
+        - isActive (boolean)
+      </signals>
+
+      <scores>
+        - _id (Convex ID, primary key)
+        - companyId (reference -> companies)
+        - exitScore (number, 0-100)
+        - fitScore (number, 0-100)
+        - scoringExplanation (string, AI-generated)
+        - recommendedAction (string)
+        - calculatedAt (number, timestamp)
+        - scannerRunId (string, optional)
+      </scores>
+
+      <analysisRuns>
+        - _id (Convex ID, primary key)
+        - startedAt (number, timestamp)
+        - completedAt (number, timestamp, optional)
+        - status (string: running, completed, failed)
+        - prospectsScanned (number)
+        - signalsDetected (number)
+        - highPriorityCount (number)
+      </analysisRuns>
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <convex_queries>
+      - prospects.list: Get all prospects with scores and signals (with filters)
+      - prospects.getById: Get single prospect with full details
+      - prospects.getTopProspects: Get top N by combined score
+      - signals.getByCompany: Get all signals for a company
+      - signals.getDistribution: Get signal type counts for chart
+      - scores.getLatest: Get most recent scores for all companies
+      - analysisRuns.getLatest: Get most recent analysis run info
+      - stats.getDashboard: Get hero stats (counts, trends)
+    </convex_queries>
+
+    <convex_mutations>
+      - prospects.seed: Seed database with mock data
+      - signals.create: Add a new signal
+      - scores.upsert: Update or create scores for a company
+      - analysisRuns.start: Start a new analysis run
+      - analysisRuns.complete: Mark analysis run as completed
+    </convex_mutations>
+
+    <convex_actions>
+      - agents.runScanner: Execute Scanner agent (detects signals)
+      - agents.runScorer: Execute Scorer agent (calculates scores)
+      - agents.runFullAnalysis: Run Scanner then Scorer
+    </convex_actions>
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure>
+      - Sidebar navigation (collapsible on mobile)
+      - Header with logo, dark mode toggle, user menu
+      - Main content area with page-specific content
+      - No footer (dashboard style)
+    </main_structure>
+
+    <sidebar>
+      - Breneman Advisors logo at top
+      - Navigation links:
+        * Dashboard (home icon)
+        * Prospects (users icon)
+        * Weekly Briefing (calendar icon)
+        * Settings (gear icon) - placeholder for future
+      - Collapse toggle at bottom
+      - Active state highlighting
+    </sidebar>
+
+    <dashboard_page>
+      - Page title: "Prospect Dashboard"
+      - Stats row: 4 StatCards in grid
+      - Two-column layout below:
+        * Left (2/3): Top Prospects table
+        * Right (1/3): Signal Distribution chart
+      - "Run Analysis" button (prominent, primary color)
+      - Last run timestamp
+    </dashboard_page>
+
+    <prospects_page>
+      - Page title: "All Prospects"
+      - Filter bar: search input, dropdowns, score slider
+      - Full-width DataTable
+      - Pagination controls at bottom
+    </prospects_page>
+
+    <prospect_detail_page>
+      - Back button with breadcrumb
+      - Two-column layout:
+        * Left: Company card, Owner card
+        * Right: Score gauges
+      - Full-width sections below:
+        * Signal breakdown
+        * Scoring explanation
+        * Recommended action
+    </prospect_detail_page>
+
+    <briefing_page>
+      - Page title: "Weekly Briefing"
+      - Date range selector
+      - Top 10 list as cards
+      - New signals section
+      - Export button
+    </briefing_page>
+
+    <modals_overlays>
+      - Analysis running modal (with progress)
+      - Export confirmation dialog
+      - Toast notifications (bottom right)
+    </modals_overlays>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      - Primary: Blue (#3B82F6) - buttons, links, active states
+      - Secondary: Slate (#64748B) - secondary text, borders
+      - Background: White (#FFFFFF) / Dark (#0F172A)
+      - Surface: Gray-50 (#F8FAFC) / Dark-800 (#1E293B)
+      - Text: Slate-900 (#0F172A) / Slate-100 (#F1F5F9)
+      - Success: Emerald (#10B981) - high scores
+      - Warning: Amber (#F59E0B) - medium scores
+      - Danger: Rose (#F43F5E) - low scores, errors
+      - Signal colors (7):
+        * Demographics: Purple (#8B5CF6)
+        * Succession: Pink (#EC4899)
+        * Behavioral: Cyan (#06B6D4)
+        * Intent: Orange (#F97316)
+        * Leadership: Indigo (#6366F1)
+        * Financial: Green (#22C55E)
+        * Industry: Yellow (#EAB308)
+    </color_palette>
+
+    <typography>
+      - Font family: Inter (Google Fonts), system-ui fallback
+      - Headings: font-semibold
+        * h1: 2.25rem (36px)
+        * h2: 1.875rem (30px)
+        * h3: 1.5rem (24px)
+        * h4: 1.25rem (20px)
+      - Body: font-normal, 1rem (16px)
+      - Small: 0.875rem (14px)
+      - Mono: JetBrains Mono for scores/data
+    </typography>
+
+    <components>
+      - Buttons: rounded-lg, font-medium, hover scale effect
+      - Cards: rounded-xl, subtle shadow, border in dark mode
+      - Inputs: rounded-md, ring focus state
+      - Tables: hover row highlight, sticky header
+      - Badges: rounded-full, pill shape
+      - Gauges: circular with gradient stroke
+    </components>
+
+    <animations>
+      - Page transitions: fade + slide (150ms)
+      - Card hover: subtle lift (transform: translateY(-2px))
+      - Button press: scale down (0.98)
+      - Loading: skeleton pulse animation
+      - Score gauge: animate on mount (1s ease-out)
+      - Numbers: count up animation for stats
+    </animations>
+  </design_system>
+
+  <key_interactions>
+    <viewing_dashboard>
+      1. User lands on dashboard
+      2. Stats cards show current totals
+      3. Top 5 prospects displayed with scores
+      4. Signal chart shows distribution
+      5. User can click "Run Analysis" to refresh data
+    </viewing_dashboard>
+
+    <running_analysis>
+      1. User clicks "Run Analysis" button
+      2. Modal appears with progress indicator
+      3. Scanner agent runs, detecting signals
+      4. Scorer agent runs, calculating scores
+      5. Modal closes, data refreshes
+      6. Toast: "Analysis complete - X prospects scored"
+    </running_analysis>
+
+    <browsing_prospects>
+      1. User navigates to Prospects page
+      2. Full list loads with default sort (Exit Score desc)
+      3. User applies filters (e.g., industry = Manufacturing)
+      4. Table updates with filtered results
+      5. User clicks company name to view details
+    </browsing_prospects>
+
+    <viewing_prospect_detail>
+      1. User clicks prospect from list
+      2. Detail page loads with company/owner info
+      3. Score gauges animate to final values
+      4. Signals listed with color-coded badges
+      5. AI explanation shows reasoning
+      6. User sees recommended outreach action
+    </viewing_prospect_detail>
+
+    <generating_briefing>
+      1. User navigates to Weekly Briefing
+      2. Top 10 prospects displayed as cards
+      3. New signals section shows recent detections
+      4. User clicks Export to generate PDF/print view
+    </generating_briefing>
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Database Schema and Mock Data</title>
+      <tasks>
+        - Create Convex schema with all tables (companies, owners, signals, scores, analysisRuns)
+        - Implement mock data seeder with 50+ Northern Michigan businesses
+        - Generate realistic owner demographics (age 50-70, tenure 15-35 years)
+        - Create diverse signals across all 7 types
+        - Verify data loads correctly with basic query
+      </tasks>
+    </step>
+
+    <step number="2">
+      <title>Core UI Layout and Navigation</title>
+      <tasks>
+        - Set up sidebar navigation component
+        - Create header with logo and dark mode toggle
+        - Implement page layout wrapper
+        - Add Inter font and base Tailwind config
+        - Create placeholder pages for all routes
+        - Test responsive sidebar collapse
+      </tasks>
+    </step>
+
+    <step number="3">
+      <title>Dashboard Home Page</title>
+      <tasks>
+        - Create StatCard component with icon and value
+        - Implement dashboard stats query
+        - Build Top Prospects mini-table
+        - Add Signal Distribution chart (Recharts)
+        - Create "Run Analysis" button (placeholder action)
+        - Style for both light and dark mode
+      </tasks>
+    </step>
+
+    <step number="4">
+      <title>Prospect List Page</title>
+      <tasks>
+        - Create DataTable component with sorting
+        - Implement filtering (search, dropdowns, slider)
+        - Add score color-coding (gradient based on value)
+        - Create SignalBadge component
+        - Add pagination or infinite scroll
+        - Link company names to detail page
+      </tasks>
+    </step>
+
+    <step number="5">
+      <title>Prospect Detail Page</title>
+      <tasks>
+        - Create company and owner info cards
+        - Build ScoreGauge component (circular progress)
+        - Display signal breakdown with badges
+        - Add scoring explanation section
+        - Show recommended action
+        - Animate gauge on mount
+      </tasks>
+    </step>
+
+    <step number="6">
+      <title>Weekly Briefing Page</title>
+      <tasks>
+        - Create briefing card component
+        - Query top 10 prospects
+        - Show new signals section
+        - Add date range selector
+        - Implement print/export functionality
+      </tasks>
+    </step>
+
+    <step number="7">
+      <title>Scanner Agent Implementation</title>
+      <tasks>
+        - Define Scanner as Claude Agent SDK subagent
+        - Implement signal detection logic for each type
+        - Create Convex action to run scanner
+        - Store detected signals in database
+        - Test with mock data
+      </tasks>
+    </step>
+
+    <step number="8">
+      <title>Scorer Agent Implementation</title>
+      <tasks>
+        - Define Scorer as Claude Agent SDK subagent
+        - Implement Breneman Trilogy scoring algorithm
+        - Calculate Exit Score and Fit Score
+        - Generate scoring explanation text
+        - Create recommended action based on signals
+        - Store scores in database
+      </tasks>
+    </step>
+
+    <step number="9">
+      <title>Analysis Integration</title>
+      <tasks>
+        - Connect "Run Analysis" button to agents
+        - Create analysis running modal with progress
+        - Track analysis runs in database
+        - Update UI in real-time as scores change
+        - Add toast notifications for completion
+      </tasks>
+    </step>
+
+    <step number="10">
+      <title>Polish and Refinement</title>
+      <tasks>
+        - Add loading skeletons throughout
+        - Create empty state illustrations
+        - Implement all animations (Framer Motion)
+        - Test dark mode thoroughly
+        - Verify mobile responsiveness
+        - Performance optimization
+        - Final visual polish pass
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - Dashboard loads with 50+ mock prospects
+      - Scanner correctly identifies 20+ high-signal prospects
+      - Scorer produces Exit and Fit scores (0-100) for all prospects
+      - Top 10 ranking makes intuitive sense (old owner + no successor = high)
+      - Filtering and sorting work correctly
+      - Detail page shows complete prospect information
+      - Weekly briefing displays meaningful summary
+    </functionality>
+
+    <user_experience>
+      - Interface is immediately understandable without instruction
+      - Navigation between pages is smooth and fast
+      - Loading states provide feedback
+      - Dark mode works completely
+      - Mobile layout is fully usable
+      - Animations feel professional, not distracting
+    </user_experience>
+
+    <technical_quality>
+      - Clean component structure
+      - Proper TypeScript types throughout
+      - Convex queries are efficient
+      - No console errors
+      - Proper error handling for edge cases
+    </technical_quality>
+
+    <design_polish>
+      - Visually impressive (Linear/Vercel quality)
+      - Consistent color usage and spacing
+      - Professional typography hierarchy
+      - Score visualizations are clear and attractive
+      - Dark mode is equally polished as light mode
+      - Client-presentation ready
+    </design_polish>
+  </success_criteria>
+</project_specification>
