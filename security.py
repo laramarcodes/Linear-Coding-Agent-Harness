@@ -26,9 +26,12 @@ ALLOWED_COMMANDS = {
     "chmod",  # For making scripts executable; validated separately
     # Directory
     "pwd",
+    "cd",  # Shell builtin for changing directories
     # Node.js development
     "npm",
+    "npx",  # For running dev-browser scripts and other Node tools
     "node",
+    "tsx",  # TypeScript execution for dev-browser scripts
     # Version control
     "git",
     # Process management
@@ -38,10 +41,11 @@ ALLOWED_COMMANDS = {
     "pkill",  # For killing dev servers; validated separately
     # Script execution
     "init.sh",  # Init scripts; validated separately
+    "server.sh",  # dev-browser server script
 }
 
 # Commands that need additional validation even when in the allowlist
-COMMANDS_NEEDING_EXTRA_VALIDATION = {"pkill", "chmod", "init.sh"}
+COMMANDS_NEEDING_EXTRA_VALIDATION = {"pkill", "chmod", "init.sh", "server.sh"}
 
 
 def split_command_segments(command_string: str) -> list[str]:
@@ -276,6 +280,30 @@ def validate_init_script(command_string: str) -> tuple[bool, str]:
     return False, f"Only ./init.sh is allowed, got: {script}"
 
 
+def validate_server_script(command_string: str) -> tuple[bool, str]:
+    """
+    Validate server.sh script execution - only allow dev-browser server script.
+
+    Returns:
+        Tuple of (is_allowed, reason_if_blocked)
+    """
+    try:
+        tokens = shlex.split(command_string)
+    except ValueError:
+        return False, "Could not parse server script command"
+
+    if not tokens:
+        return False, "Empty command"
+
+    script = tokens[0]
+
+    # Allow ./server.sh or paths containing dev-browser/server.sh
+    if script == "./server.sh" or "dev-browser" in script and script.endswith("/server.sh"):
+        return True, ""
+
+    return False, f"Only dev-browser server.sh is allowed, got: {script}"
+
+
 def get_command_for_validation(cmd: str, segments: list[str]) -> str:
     """
     Find the specific command segment that contains the given command.
@@ -353,6 +381,10 @@ async def bash_security_hook(input_data, tool_use_id=None, context=None):
                     return {"decision": "block", "reason": reason}
             elif cmd == "init.sh":
                 allowed, reason = validate_init_script(cmd_segment)
+                if not allowed:
+                    return {"decision": "block", "reason": reason}
+            elif cmd == "server.sh":
+                allowed, reason = validate_server_script(cmd_segment)
                 if not allowed:
                     return {"decision": "block", "reason": reason}
 

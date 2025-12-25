@@ -1,0 +1,395 @@
+<project_specification>
+  <project_name>{{PROJECT_NAME}}</project_name>
+
+  <app_type>{{APP_TYPE}}</app_type>
+  <!--
+  INSTRUCTIONS: Choose one archetype for project scaffolding:
+  landing | crud | dashboard | ai | game | saas | social | collaboration | ecommerce | directory
+
+  This determines which shadcn/ui components are pre-installed.
+  Default to "crud" if unsure.
+  -->
+
+  <overview>
+    {{PROJECT_OVERVIEW}}
+
+    <!--
+    INSTRUCTIONS: Write 2-4 sentences describing:
+    - What the application does
+    - Who it's for
+    - Key value proposition
+    - Any design/UX goals (e.g., "modern UI", "mobile-first", "enterprise-grade")
+    -->
+  </overview>
+
+  <technology_stack>
+    <api_key>
+        {{API_KEY_INSTRUCTIONS}}
+        <!--
+        INSTRUCTIONS: If your app needs API keys, describe where they're stored.
+        Example: "You can use an API key located at /tmp/api-key for testing."
+        If no API key needed, you can remove this section.
+        -->
+    </api_key>
+    <frontend>
+      <framework>{{FRONTEND_FRAMEWORK}}</framework>
+      <!-- Examples: React with Vite, Next.js, Vue 3, Svelte, plain HTML/JS -->
+
+      <styling>{{STYLING_APPROACH}}</styling>
+      <!-- Examples: Tailwind CSS, CSS Modules, styled-components, plain CSS -->
+
+      <state_management>{{STATE_MANAGEMENT}}</state_management>
+      <!-- Examples: React hooks and context, Redux, Zustand, Pinia -->
+
+      <routing>{{ROUTING}}</routing>
+      <!-- Examples: React Router, Next.js App Router, Vue Router -->
+
+      <port>Only launch on port {{FRONTEND_PORT}}</port>
+      <!-- Specify a port to avoid conflicts. Common: 3000, 5173, 8080 -->
+
+      <!-- Add additional frontend requirements as needed -->
+      {{ADDITIONAL_FRONTEND_REQUIREMENTS}}
+    </frontend>
+    <backend>
+      <runtime>{{BACKEND_RUNTIME}}</runtime>
+      <!-- Examples: Node.js with Express, Python with FastAPI, Go with Gin -->
+
+      <database>{{DATABASE}}</database>
+      <!-- Examples: SQLite with better-sqlite3, PostgreSQL, MongoDB, none -->
+
+      {{ADDITIONAL_BACKEND_REQUIREMENTS}}
+      <!-- Add things like: caching, file storage, external APIs, etc. -->
+    </backend>
+    <communication>
+      <api>{{API_STYLE}}</api>
+      <!-- Examples: RESTful endpoints, GraphQL, tRPC -->
+
+      {{ADDITIONAL_COMMUNICATION}}
+      <!-- Examples: WebSockets for real-time, SSE for streaming, webhooks -->
+    </communication>
+  </technology_stack>
+
+  <prerequisites>
+    <environment_setup>
+      {{PREREQUISITES}}
+      <!--
+      INSTRUCTIONS: List what needs to be set up before coding begins.
+      Examples:
+      - Repository includes .env with API keys configured
+      - Frontend dependencies pre-installed via npm/pnpm
+      - Backend code goes in /server directory
+      - Docker required for database
+      -->
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <!--
+    INSTRUCTIONS: List all features organized by category.
+    For each feature, use a brief description (1 line).
+    The initializer agent will expand these into detailed Linear issues.
+
+    Organize features from most fundamental to most advanced.
+    Include both functional features and UI/UX requirements.
+    -->
+
+    {{FEATURE_CATEGORY_1}}
+    <!-- Example structure:
+    <authentication>
+      - User registration with email/password
+      - Login with session management
+      - Password reset flow
+      - OAuth integration (Google, GitHub)
+      - Remember me functionality
+    </authentication>
+    -->
+
+    {{FEATURE_CATEGORY_2}}
+
+    {{FEATURE_CATEGORY_3}}
+
+    <!-- Add as many feature categories as needed -->
+    {{ADDITIONAL_FEATURE_CATEGORIES}}
+
+    <!-- Common categories to consider:
+    - Core functionality (the main thing your app does)
+    - User management / Authentication
+    - Data management / CRUD operations
+    - Search and filtering
+    - Settings and preferences
+    - Notifications
+    - Sharing / Collaboration
+    - Import / Export
+    - Analytics / Dashboards
+    - Admin features
+    - Accessibility
+    - Responsive design / Mobile support
+    -->
+  </core_features>
+
+  <database_schema>
+    <!--
+    INSTRUCTIONS: Define your data model.
+    List each table/collection with its fields and relationships.
+    Include data types and constraints where helpful.
+    -->
+    <tables>
+      {{DATABASE_TABLES}}
+
+      <!-- Example structure:
+      <users>
+        - id (primary key)
+        - email (unique, required)
+        - name
+        - password_hash
+        - created_at, updated_at
+        - preferences (JSON)
+      </users>
+
+      <posts>
+        - id (primary key)
+        - user_id (foreign key -> users)
+        - title, content
+        - status (draft/published)
+        - created_at, updated_at
+      </posts>
+      -->
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <!--
+    INSTRUCTIONS: List all API endpoints organized by resource.
+    Use RESTful conventions or describe your API style.
+    This helps the agent understand the full scope of backend work.
+    -->
+
+    {{API_ENDPOINTS}}
+
+    <!-- Example structure:
+    <users>
+      - POST /api/users (create user)
+      - GET /api/users/:id (get user)
+      - PUT /api/users/:id (update user)
+      - DELETE /api/users/:id (delete user)
+    </users>
+
+    <posts>
+      - GET /api/posts (list posts, with pagination/filters)
+      - POST /api/posts (create post)
+      - GET /api/posts/:id (get post)
+      - PUT /api/posts/:id (update post)
+      - DELETE /api/posts/:id (delete post)
+    </posts>
+    -->
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <!--
+    INSTRUCTIONS: Describe the overall UI structure and key screens.
+    Include navigation patterns, layout components, and page hierarchy.
+    -->
+
+    <main_structure>
+      {{MAIN_UI_STRUCTURE}}
+      <!-- Example:
+      - Single-page app with sidebar navigation
+      - Header with logo, search, user menu
+      - Main content area with responsive breakpoints
+      - Footer with links and copyright
+      -->
+    </main_structure>
+
+    {{UI_SECTIONS}}
+    <!-- Describe each major section/page of the UI -->
+
+    <!-- Example:
+    <sidebar>
+      - Logo at top
+      - Navigation links
+      - User profile at bottom
+      - Collapsible on mobile
+    </sidebar>
+
+    <dashboard>
+      - Welcome message
+      - Key metrics in cards
+      - Recent activity list
+      - Quick action buttons
+    </dashboard>
+
+    <settings>
+      - Tabbed interface
+      - Profile settings
+      - Notification preferences
+      - Account management
+    </settings>
+    -->
+
+    <modals_overlays>
+      {{MODALS_AND_OVERLAYS}}
+      <!-- List any modals, dialogs, toasts, or overlays needed -->
+    </modals_overlays>
+  </ui_layout>
+
+  <design_system>
+    <!--
+    INSTRUCTIONS: Define the visual design language.
+    Include colors, typography, component styles, and animations.
+    Reference existing design systems if applicable (e.g., "similar to Linear's UI").
+    -->
+
+    <color_palette>
+      {{COLOR_PALETTE}}
+      <!-- Example:
+      - Primary: Blue (#3B82F6)
+      - Secondary: Gray (#6B7280)
+      - Background: White (#FFFFFF) / Dark (#1F2937)
+      - Text: Near black (#111827) / Light (#F9FAFB)
+      - Accent: Green for success, Red for errors
+      -->
+    </color_palette>
+
+    <typography>
+      {{TYPOGRAPHY}}
+      <!-- Example:
+      - Font family: Inter, system-ui, sans-serif
+      - Headings: font-semibold, sizes h1-h6
+      - Body: font-normal, 16px base
+      - Code: JetBrains Mono, monospace
+      -->
+    </typography>
+
+    <components>
+      {{COMPONENT_STYLES}}
+      <!-- Describe key component styles:
+      - Buttons (primary, secondary, ghost)
+      - Inputs (text, textarea, select)
+      - Cards and containers
+      - Tables and lists
+      -->
+    </components>
+
+    <animations>
+      {{ANIMATIONS}}
+      <!-- Example:
+      - Smooth transitions (150-300ms)
+      - Fade in for content loading
+      - Slide in for sidebars/modals
+      - Hover states with subtle transforms
+      -->
+    </animations>
+  </design_system>
+
+  <key_interactions>
+    <!--
+    INSTRUCTIONS: Describe the main user workflows step-by-step.
+    This helps the agent understand the expected user experience.
+    -->
+
+    {{USER_WORKFLOWS}}
+
+    <!-- Example:
+    <user_registration>
+      1. User clicks "Sign Up" button
+      2. Registration form appears (name, email, password)
+      3. User fills form and submits
+      4. Validation runs, errors shown inline if any
+      5. On success, account created
+      6. User redirected to dashboard with welcome message
+    </user_registration>
+
+    <creating_a_post>
+      1. User clicks "New Post" button
+      2. Editor opens with title and content fields
+      3. User types content with markdown support
+      4. Auto-save drafts every 30 seconds
+      5. User clicks "Publish"
+      6. Post appears in their profile and feed
+    </creating_a_post>
+    -->
+  </key_interactions>
+
+  <implementation_steps>
+    <!--
+    INSTRUCTIONS: Break down the project into logical implementation phases.
+    Order from foundational to advanced. Each step should be achievable
+    in roughly 1-3 agent sessions.
+    -->
+
+    <step number="1">
+      <title>{{STEP_1_TITLE}}</title>
+      <tasks>
+        {{STEP_1_TASKS}}
+      </tasks>
+    </step>
+
+    <step number="2">
+      <title>{{STEP_2_TITLE}}</title>
+      <tasks>
+        {{STEP_2_TASKS}}
+      </tasks>
+    </step>
+
+    <!-- Add more steps as needed -->
+    {{ADDITIONAL_STEPS}}
+
+    <!-- Typical implementation order:
+    1. Project setup, database, basic API structure
+    2. Core UI layout and navigation
+    3. Primary feature implementation
+    4. Secondary features
+    5. User management / Authentication
+    6. Settings and preferences
+    7. Polish, performance, accessibility
+    8. Testing and refinement
+    -->
+  </implementation_steps>
+
+  <success_criteria>
+    <!--
+    INSTRUCTIONS: Define what "done" looks like.
+    Include functional requirements, UX expectations, and quality standards.
+    -->
+
+    <functionality>
+      {{FUNCTIONAL_SUCCESS_CRITERIA}}
+      <!-- Example:
+      - All CRUD operations work correctly
+      - Authentication flow is secure and complete
+      - Search returns relevant results
+      - Data persists across sessions
+      -->
+    </functionality>
+
+    <user_experience>
+      {{UX_SUCCESS_CRITERIA}}
+      <!-- Example:
+      - Interface is intuitive and self-explanatory
+      - Responsive on mobile, tablet, and desktop
+      - Loading states provide feedback
+      - Error messages are helpful
+      -->
+    </user_experience>
+
+    <technical_quality>
+      {{TECHNICAL_SUCCESS_CRITERIA}}
+      <!-- Example:
+      - Clean, maintainable code structure
+      - Proper error handling throughout
+      - No security vulnerabilities
+      - Efficient database queries
+      -->
+    </technical_quality>
+
+    <design_polish>
+      {{DESIGN_SUCCESS_CRITERIA}}
+      <!-- Example:
+      - Consistent visual design throughout
+      - Smooth animations and transitions
+      - Accessible (keyboard nav, screen readers)
+      - Professional, polished appearance
+      -->
+    </design_polish>
+  </success_criteria>
+</project_specification>

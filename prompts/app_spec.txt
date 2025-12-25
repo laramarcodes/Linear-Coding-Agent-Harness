@@ -1,681 +1,926 @@
 <project_specification>
-  <project_name>Claude.ai Clone - AI Chat Interface</project_name>
+  <project_name>CardCraft AI</project_name>
+
+  <app_type>ai</app_type>
 
   <overview>
-    Build a fully functional clone of claude.ai, Anthropic's conversational AI interface. The application should
-    provide a clean, modern chat interface for interacting with Claude via the API, including features like
-    conversation management, artifact rendering, project organization, multiple model selection, and advanced
-    settings. The UI should closely match claude.ai's design using Tailwind CSS with a focus on excellent
-    user experience and responsive design.
+    CardCraft AI is an AI-powered greeting card creation platform that lets users design stunning, personalized cards for any occasion. Using Google's Nano Banana Pro (Gemini 3 Pro Image), users can generate unique artwork, replicate their own handwriting, and integrate personal photos - all with AI assistance and manual editing controls. The app features a playful, colorful design that makes card creation fun and engaging. Users can send cards digitally or have them professionally printed and mailed through our print-on-demand integration. The platform targets general consumers who want to send meaningful, personalized cards for birthdays, weddings, holidays, and life's special moments.
   </overview>
 
   <technology_stack>
     <api_key>
-        You can use an API key located at /tmp/api-key for testing. You will not be allowed to read this file, but you can reference it in code.
+      Google Gemini API key for Nano Banana Pro image generation.
+      Store in environment variable: GEMINI_API_KEY
+      Print-on-demand service API key: LOB_API_KEY
+      Stripe API keys: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY
+      Resend API key: RESEND_API_KEY
     </api_key>
+
+    <nano_banana_pro_integration>
+      <!--
+      NANO BANANA PRO (Gemini 3 Pro Image) INTEGRATION GUIDE
+      Official Docs: https://ai.google.dev/gemini-api/docs/image-generation
+      -->
+
+      <models>
+        - gemini-3-pro-image-preview: Advanced model for high-quality generation (Nano Banana Pro)
+        - gemini-2.5-flash-image: Fast model for quick previews (Nano Banana)
+      </models>
+
+      <sdk_setup>
+        Install: npm install @google/genai
+
+        JavaScript initialization:
+        ```javascript
+        import { GoogleGenAI } from "@google/genai";
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        ```
+      </sdk_setup>
+
+      <text_to_image>
+        Use for initial card generation from user prompts:
+        ```javascript
+        const response = await ai.models.generateContent({
+          model: "gemini-3-pro-image-preview",
+          contents: [{ text: userPrompt }],
+          generationConfig: {
+            responseModalities: ['TEXT', 'IMAGE'],
+            imageConfig: {
+              aspectRatio: "4:3", // Card aspect ratio
+              imageSize: "2K"     // High quality for print
+            }
+          }
+        });
+        ```
+      </text_to_image>
+
+      <multi_turn_editing>
+        Use for iterative card refinement (user edits):
+        ```javascript
+        const chat = await ai.chats.create({
+          model: "gemini-3-pro-image-preview",
+          config: {
+            responseModalities: ['TEXT', 'IMAGE']
+          }
+        });
+
+        // Initial generation
+        const response1 = await chat.sendMessage("Create a watercolor birthday card...");
+
+        // Iterative editing
+        const response2 = await chat.sendMessage("Make the colors more vibrant");
+        const response3 = await chat.sendMessage("Add 'Happy Birthday!' in elegant script");
+        ```
+      </multi_turn_editing>
+
+      <handwriting_replication>
+        Nano Banana Pro has advanced text rendering capable of:
+        - Generating legible, stylized text
+        - Reproducing handwriting styles from reference images
+        - Placing text accurately within compositions
+
+        Approach for handwriting:
+        1. User uploads handwriting sample image
+        2. Store sample in Convex file storage
+        3. Send sample + text to Nano Banana Pro:
+        ```javascript
+        const response = await ai.models.generateContent({
+          model: "gemini-3-pro-image-preview",
+          contents: [
+            { text: "Reproduce this handwriting style exactly for the text: 'Happy Birthday!'" },
+            { inlineData: { mimeType: "image/png", data: handwritingSampleBase64 } }
+          ],
+          generationConfig: {
+            responseModalities: ['IMAGE'],
+            imageConfig: { imageSize: "2K" }
+          }
+        });
+        ```
+      </handwriting_replication>
+
+      <reference_images>
+        Gemini 3 Pro supports up to 14 reference images for:
+        - Style transfer (match a card style)
+        - Object/character consistency
+        - Photo integration with AI enhancement
+
+        ```javascript
+        const response = await ai.models.generateContent({
+          model: "gemini-3-pro-image-preview",
+          contents: [
+            { text: "Create a birthday card in this style, featuring this person" },
+            { inlineData: { mimeType: "image/png", data: styleReferenceBase64 } },
+            { inlineData: { mimeType: "image/jpeg", data: userPhotoBase64 } }
+          ]
+        });
+        ```
+      </reference_images>
+
+      <response_handling>
+        ```javascript
+        // Extract generated image from response
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            const imageBuffer = Buffer.from(part.inlineData.data, 'base64');
+            // Save to Convex storage or return to client
+          }
+          if (part.text) {
+            // AI explanation or suggestions
+          }
+        }
+        ```
+      </response_handling>
+
+      <capabilities>
+        - Resolution: 1K, 2K, 4K output
+        - Aspect ratios: 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
+        - Text rendering: Accurate, legible text in images
+        - Style consistency: Multi-turn conversations maintain style
+        - Reference images: Up to 14 images for composition
+      </capabilities>
+
+      <card_sizes_mapping>
+        Card Size -> Aspect Ratio:
+        - 4x6 card -> 3:2 aspect ratio
+        - 5x7 card -> 5:4 aspect ratio
+        - A6 card  -> 3:4 aspect ratio
+        - Square   -> 1:1 aspect ratio
+      </card_sizes_mapping>
+    </nano_banana_pro_integration>
+
     <frontend>
-      <framework>React with Vite</framework>
-      <styling>Tailwind CSS (via CDN)</styling>
-      <state_management>React hooks and context</state_management>
-      <routing>React Router for navigation</routing>
-      <markdown>React Markdown for message rendering</markdown>
-      <code_highlighting>Syntax highlighting for code blocks</code_highlighting>
-      <port>Only launch on port {frontend_port}</port>
+      <framework>Next.js 14 with App Router</framework>
+      <styling>Tailwind CSS with custom playful theme</styling>
+      <state_management>React hooks, Convex real-time subscriptions, and React Context for UI state</state_management>
+      <routing>Next.js App Router with dynamic routes</routing>
+      <port>Only launch on port 3000</port>
+      <additional>
+        - @google/genai SDK for Nano Banana Pro integration
+        - shadcn/ui component library for base components
+        - Framer Motion for playful animations
+        - react-dropzone for file uploads
+        - Canvas/Fabric.js for card editing interface
+      </additional>
     </frontend>
+
     <backend>
-      <runtime>Node.js with Express</runtime>
-      <database>SQLite with better-sqlite3</database>
-      <api_integration>Claude API for chat completions</api_integration>
-      <streaming>Server-Sent Events for streaming responses</streaming>
+      <runtime>Convex (serverless functions)</runtime>
+      <database>Convex (built-in real-time database)</database>
+      <additional>
+        - Clerk for authentication
+        - Convex file storage for images and card assets
+        - Convex actions for external API calls (Nano Banana Pro, Print service)
+        - Stripe for subscription billing
+      </additional>
     </backend>
+
     <communication>
-      <api>RESTful endpoints</api>
-      <streaming>SSE for real-time message streaming</streaming>
-      <claude_api>Integration with Claude API using Anthropic SDK</claude_api>
+      <api>Convex queries, mutations, and actions (real-time by default)</api>
+      <additional>
+        - Real-time card preview updates
+        - Webhook endpoints for print service status updates
+        - Email service integration for digital card delivery
+      </additional>
     </communication>
   </technology_stack>
 
   <prerequisites>
     <environment_setup>
-      - Repository includes .env with VITE_ANTHROPIC_API_KEY configured
-      - Frontend dependencies pre-installed via pnpm
-      - Backend code goes in /server directory
-      - Install backend dependencies as needed
+      - Convex project initialized with `npx convex dev`
+      - Clerk application configured with email/password and Google OAuth
+      - Google Nano Banana Pro API access configured
+      - Stripe account for subscription billing
+      - Print-on-demand service account (Lob recommended)
+      - Environment variables configured in Convex dashboard
     </environment_setup>
   </prerequisites>
 
   <core_features>
-    <chat_interface>
-      - Clean, centered chat layout with message bubbles
-      - Streaming message responses with typing indicator
-      - Markdown rendering with proper formatting
-      - Code blocks with syntax highlighting and copy button
-      - LaTeX/math equation rendering
-      - Image upload and display in messages
-      - Multi-turn conversations with context
-      - Message editing and regeneration
-      - Stop generation button during streaming
-      - Input field with auto-resize textarea
-      - Character count and token estimation
-      - Keyboard shortcuts (Enter to send, Shift+Enter for newline)
-    </chat_interface>
+    <authentication>
+      - User registration with email/password via Clerk
+      - Google OAuth login option
+      - Secure session management
+      - Profile management (name, avatar, preferences)
+      - Account deletion with data cleanup
+    </authentication>
 
-    <artifacts>
-      - Artifact detection and rendering in side panel
-      - Code artifact viewer with syntax highlighting
-      - HTML/SVG preview with live rendering
-      - React component preview
-      - Mermaid diagram rendering
-      - Text document artifacts
-      - Artifact editing and re-prompting
-      - Full-screen artifact view
-      - Download artifact content
-      - Artifact versioning and history
-    </artifacts>
+    <subscription_billing>
+      - Free trial period (7 days)
+      - Monthly subscription plan ($9.99/month)
+      - Annual subscription plan ($79.99/year - 2 months free)
+      - Stripe Checkout integration
+      - Subscription management portal
+      - Usage limits based on plan (cards per month)
+      - Upgrade/downgrade flow
+    </subscription_billing>
 
-    <conversation_management>
-      - Create new conversations
-      - Conversation list in sidebar
-      - Rename conversations
-      - Delete conversations
-      - Search conversations by title/content
-      - Pin important conversations
-      - Archive conversations
-      - Conversation folders/organization
-      - Duplicate conversation
-      - Export conversation (JSON, Markdown, PDF)
-      - Conversation timestamps (created, last updated)
-      - Unread message indicators
-    </conversation_management>
+    <card_creation_ai>
+      - Occasion selector (birthday, wedding, holiday, thank you, etc.)
+      - AI prompt input for card concept description
+      - Style selector (watercolor, cartoon, elegant, minimalist, retro, etc.)
+      - AI-generated card artwork using Nano Banana Pro
+      - Multiple generation options (generate 4 variations)
+      - Regenerate with refined prompts
+      - AI-suggested messages based on occasion and recipient
+    </card_creation_ai>
 
-    <projects>
-      - Create projects to group related conversations
-      - Project knowledge base (upload documents)
-      - Project-specific custom instructions
-      - Share projects with team (mock feature)
-      - Project settings and configuration
-      - Move conversations between projects
-      - Project templates
-      - Project analytics (usage stats)
-    </projects>
+    <card_editor>
+      - Visual canvas editor for card customization
+      - Text editing with multiple fonts and colors
+      - Text positioning and sizing controls
+      - Photo upload and placement
+      - AI photo enhancement (background removal, filters)
+      - Sticker and decoration library
+      - Undo/redo functionality
+      - Card preview (front, inside, back)
+      - Save draft functionality
+    </card_editor>
 
-    <model_selection>
-      - Model selector dropdown with the following models:
-        - Claude Sonnet 4.5 (claude-sonnet-4-5-20250929) - default
-        - Claude Haiku 4.5 (claude-haiku-4-5-20251001)
-        - Claude Opus 4.1 (claude-opus-4-1-20250805)
-      - Model capabilities display
-      - Context window indicator
-      - Model-specific pricing info (display only)
-      - Switch models mid-conversation
-      - Model comparison view
-    </model_selection>
+    <handwriting_replication>
+      - Upload handwriting sample (photo or scan)
+      - AI analysis and font generation using Nano Banana Pro
+      - Preview handwriting on card
+      - Save personal handwriting styles to profile
+      - Apply handwriting to any text element
+      - Multiple handwriting samples per user
+    </handwriting_replication>
 
-    <custom_instructions>
-      - Global custom instructions
-      - Project-specific custom instructions
-      - Conversation-specific system prompts
-      - Custom instruction templates
-      - Preview how instructions affect responses
-    </custom_instructions>
+    <photo_integration>
+      - Photo upload from device
+      - Photo cropping and positioning
+      - AI-powered background removal
+      - Photo filters and adjustments
+      - Photo collage layouts
+      - Face detection for smart positioning
+    </photo_integration>
 
-    <settings_preferences>
-      - Theme selection (Light, Dark, Auto)
-      - Font size adjustment
-      - Message density (compact, comfortable, spacious)
-      - Code theme selection
-      - Language preferences
-      - Accessibility options
-      - Keyboard shortcuts reference
-      - Data export options
-      - Privacy settings
-      - API key management
-    </settings_preferences>
+    <occasion_detection>
+      - Smart occasion suggestions based on date
+      - Holiday calendar integration
+      - Recipient birthday reminders (if saved)
+      - Trending occasions and themes
+      - Seasonal style recommendations
+    </occasion_detection>
 
-    <advanced_features>
-      - Temperature control slider
-      - Max tokens adjustment
-      - Top-p (nucleus sampling) control
-      - System prompt override
-      - Thinking/reasoning mode toggle
-      - Multi-modal input (text + images)
-      - Voice input (optional, mock UI)
-      - Response suggestions
-      - Related prompts
-      - Conversation branching
-    </advanced_features>
+    <card_delivery_digital>
+      - Generate shareable link for card viewing
+      - Email delivery with animated reveal
+      - Schedule delivery for future date/time
+      - Delivery confirmation and read receipts
+      - Social media sharing (Facebook, Twitter, WhatsApp)
+      - QR code generation for physical sharing
+    </card_delivery_digital>
 
-    <collaboration>
-      - Share conversation via link (read-only)
-      - Export conversation formats
-      - Conversation templates
-      - Prompt library
-      - Share artifacts
-      - Team workspaces (mock UI)
-    </collaboration>
+    <card_delivery_print>
+      - High-resolution print file generation
+      - Card size options (4x6, 5x7, A6)
+      - Paper quality options (matte, glossy, premium)
+      - Envelope included
+      - Recipient address input
+      - Address book integration
+      - Print preview with accurate colors
+      - Order tracking via print service API
+      - Delivery status notifications
+    </card_delivery_print>
 
-    <search_discovery>
-      - Search across all conversations
-      - Filter by project, date, model
-      - Prompt library with categories
-      - Example conversations
-      - Quick actions menu
-      - Command palette (Cmd/Ctrl+K)
-    </search_discovery>
+    <card_management>
+      - My Cards library (drafts and sent)
+      - Card templates from previous designs
+      - Favorite/bookmark cards
+      - Card history and recipient tracking
+      - Re-send or edit previous cards
+      - Archive old cards
+    </card_management>
 
-    <usage_tracking>
-      - Token usage display per message
-      - Conversation cost estimation
-      - Daily/monthly usage dashboard
-      - Usage limits and warnings
-      - API quota tracking
-    </usage_tracking>
+    <user_preferences>
+      - Default style preferences
+      - Favorite occasions
+      - Saved color palettes
+      - Notification settings
+      - Address book for recipients
+      - Payment methods management
+    </user_preferences>
 
-    <onboarding>
-      - Welcome screen for new users
-      - Feature tour highlights
-      - Example prompts to get started
-      - Quick tips and best practices
-      - Keyboard shortcuts tutorial
-    </onboarding>
-
-    <accessibility>
-      - Full keyboard navigation
-      - Screen reader support
-      - ARIA labels and roles
-      - High contrast mode
-      - Focus management
-      - Reduced motion support
-    </accessibility>
-
-    <responsive_design>
-      - Mobile-first responsive layout
-      - Touch-optimized interface
-      - Collapsible sidebar on mobile
-      - Swipe gestures for navigation
-      - Adaptive artifact display
-      - Progressive Web App (PWA) support
-    </responsive_design>
+    <ui_experience>
+      - Playful onboarding tutorial
+      - Confetti animations on card completion
+      - Fun loading states with card-themed animations
+      - Mobile-responsive design
+      - Dark mode support
+      - Accessibility features (keyboard nav, screen reader support)
+    </ui_experience>
   </core_features>
 
   <database_schema>
     <tables>
       <users>
-        - id, email, name, avatar_url
-        - created_at, last_login
-        - preferences (JSON: theme, font_size, etc.)
-        - custom_instructions
+        - _id (Convex ID, primary key)
+        - clerkId (string, unique, from Clerk)
+        - email (string)
+        - name (string)
+        - avatarUrl (string, optional)
+        - subscriptionStatus (string: trial/active/cancelled/expired)
+        - subscriptionPlanId (string, optional)
+        - stripeCustomerId (string, optional)
+        - cardsCreatedThisMonth (number)
+        - preferences (object: defaultStyle, favoriteOccasions, colorPalettes)
+        - createdAt (number, timestamp)
+        - updatedAt (number, timestamp)
       </users>
 
-      <projects>
-        - id, user_id, name, description, color
-        - custom_instructions, knowledge_base_path
-        - created_at, updated_at
-        - is_archived, is_pinned
-      </projects>
+      <handwriting_samples>
+        - _id (Convex ID)
+        - userId (Id<users>)
+        - name (string, e.g., "My cursive")
+        - sampleImageId (Id<_storage>)
+        - generatedFontData (string, AI-generated font data)
+        - isDefault (boolean)
+        - createdAt (number)
+      </handwriting_samples>
 
-      <conversations>
-        - id, user_id, project_id, title
-        - model, created_at, updated_at, last_message_at
-        - is_archived, is_pinned, is_deleted
-        - settings (JSON: temperature, max_tokens, etc.)
-        - token_count, message_count
-      </conversations>
+      <cards>
+        - _id (Convex ID)
+        - userId (Id<users>)
+        - status (string: draft/completed/sent/printed)
+        - occasion (string)
+        - style (string)
+        - title (string)
+        - aiPrompt (string, original prompt)
+        - cardData (object: layers, text, images, positions)
+        - frontImageId (Id<_storage>)
+        - insideImageId (Id<_storage>, optional)
+        - backImageId (Id<_storage>, optional)
+        - thumbnailId (Id<_storage>)
+        - recipientName (string, optional)
+        - recipientEmail (string, optional)
+        - scheduledDelivery (number, timestamp, optional)
+        - sentAt (number, timestamp, optional)
+        - createdAt (number)
+        - updatedAt (number)
+      </cards>
 
-      <messages>
-        - id, conversation_id, role (user/assistant/system)
-        - content, created_at, edited_at
-        - tokens, finish_reason
-        - images (JSON array of image data)
-        - parent_message_id (for branching)
-      </messages>
+      <card_deliveries>
+        - _id (Convex ID)
+        - cardId (Id<cards>)
+        - type (string: digital/print)
+        - status (string: pending/sent/delivered/failed)
+        - recipientEmail (string, optional)
+        - recipientAddress (object, optional)
+        - trackingNumber (string, optional for print)
+        - printOrderId (string, optional)
+        - viewedAt (number, timestamp, optional)
+        - deliveredAt (number, timestamp, optional)
+        - createdAt (number)
+      </card_deliveries>
 
-      <artifacts>
-        - id, message_id, conversation_id
-        - type (code/html/svg/react/mermaid/text)
-        - title, identifier, language
-        - content, version
-        - created_at, updated_at
-      </artifacts>
+      <print_orders>
+        - _id (Convex ID)
+        - userId (Id<users>)
+        - cardId (Id<cards>)
+        - deliveryId (Id<card_deliveries>)
+        - externalOrderId (string, from print service)
+        - status (string: processing/printing/shipped/delivered)
+        - cardSize (string)
+        - paperQuality (string)
+        - recipientAddress (object)
+        - trackingUrl (string, optional)
+        - estimatedDelivery (number, timestamp)
+        - cost (number, cents)
+        - createdAt (number)
+        - updatedAt (number)
+      </print_orders>
 
-      <shared_conversations>
-        - id, conversation_id, share_token
-        - created_at, expires_at, view_count
-        - is_public
-      </shared_conversations>
+      <recipients>
+        - _id (Convex ID)
+        - userId (Id<users>)
+        - name (string)
+        - email (string, optional)
+        - address (object, optional)
+        - birthday (string, optional, MM-DD format)
+        - notes (string, optional)
+        - cardsSent (number)
+        - createdAt (number)
+      </recipients>
 
-      <prompt_library>
-        - id, user_id, title, description
-        - prompt_template, category, tags (JSON)
-        - is_public, usage_count
-        - created_at, updated_at
-      </prompt_library>
-
-      <conversation_folders>
-        - id, user_id, project_id, name, parent_folder_id
-        - created_at, position
-      </conversation_folders>
-
-      <conversation_folder_items>
-        - id, folder_id, conversation_id
-      </conversation_folder_items>
-
-      <usage_tracking>
-        - id, user_id, conversation_id, message_id
-        - model, input_tokens, output_tokens
-        - cost_estimate, created_at
-      </usage_tracking>
-
-      <api_keys>
-        - id, user_id, key_name, api_key_hash
-        - created_at, last_used_at
-        - is_active
-      </api_keys>
+      <subscriptions>
+        - _id (Convex ID)
+        - userId (Id<users>)
+        - stripeSubscriptionId (string)
+        - planType (string: monthly/annual)
+        - status (string: active/cancelled/past_due)
+        - currentPeriodStart (number)
+        - currentPeriodEnd (number)
+        - cancelAtPeriodEnd (boolean)
+        - createdAt (number)
+        - updatedAt (number)
+      </subscriptions>
     </tables>
   </database_schema>
 
   <api_endpoints_summary>
-    <authentication>
-      - POST /api/auth/login
-      - POST /api/auth/logout
-      - GET /api/auth/me
-      - PUT /api/auth/profile
-    </authentication>
+    <users>
+      - query users:get - Get current user profile
+      - mutation users:update - Update user profile and preferences
+      - mutation users:delete - Delete user account
+      - query users:getSubscriptionStatus - Check subscription status
+    </users>
 
-    <conversations>
-      - GET /api/conversations
-      - POST /api/conversations
-      - GET /api/conversations/:id
-      - PUT /api/conversations/:id
-      - DELETE /api/conversations/:id
-      - POST /api/conversations/:id/duplicate
-      - POST /api/conversations/:id/export
-      - PUT /api/conversations/:id/archive
-      - PUT /api/conversations/:id/pin
-      - POST /api/conversations/:id/branch
-    </conversations>
+    <handwriting>
+      - mutation handwriting:uploadSample - Upload handwriting image
+      - action handwriting:generateFont - Process with Nano Banana Pro
+      - query handwriting:list - Get user's handwriting samples
+      - mutation handwriting:delete - Remove handwriting sample
+      - mutation handwriting:setDefault - Set default handwriting
+    </handwriting>
 
-    <messages>
-      - GET /api/conversations/:id/messages
-      - POST /api/conversations/:id/messages
-      - PUT /api/messages/:id
-      - DELETE /api/messages/:id
-      - POST /api/messages/:id/regenerate
-      - GET /api/messages/stream (SSE endpoint)
-    </messages>
+    <cards>
+      - action cards:generateArtwork - Generate card with AI
+      - mutation cards:create - Create new card draft
+      - mutation cards:update - Update card content
+      - query cards:get - Get single card
+      - query cards:list - List user's cards with filters
+      - mutation cards:delete - Delete card
+      - mutation cards:duplicate - Create copy of card
+    </cards>
 
-    <artifacts>
-      - GET /api/conversations/:id/artifacts
-      - GET /api/artifacts/:id
-      - PUT /api/artifacts/:id
-      - DELETE /api/artifacts/:id
-      - POST /api/artifacts/:id/fork
-      - GET /api/artifacts/:id/versions
-    </artifacts>
+    <delivery>
+      - mutation delivery:sendDigital - Send card via email/link
+      - action delivery:createPrintOrder - Submit to print service
+      - query delivery:getStatus - Check delivery status
+      - query delivery:history - Get delivery history for card
+      - mutation delivery:schedule - Schedule future delivery
+      - mutation delivery:cancel - Cancel pending delivery
+    </delivery>
 
-    <projects>
-      - GET /api/projects
-      - POST /api/projects
-      - GET /api/projects/:id
-      - PUT /api/projects/:id
-      - DELETE /api/projects/:id
-      - POST /api/projects/:id/knowledge
-      - GET /api/projects/:id/conversations
-      - PUT /api/projects/:id/settings
-    </projects>
+    <billing>
+      - action billing:createCheckoutSession - Start Stripe checkout
+      - action billing:createPortalSession - Manage subscription
+      - mutation billing:handleWebhook - Process Stripe webhooks
+      - query billing:getPlans - Get available subscription plans
+    </billing>
 
-    <sharing>
-      - POST /api/conversations/:id/share
-      - GET /api/share/:token
-      - DELETE /api/share/:token
-      - PUT /api/share/:token/settings
-    </sharing>
+    <recipients>
+      - mutation recipients:create - Add recipient to address book
+      - mutation recipients:update - Update recipient
+      - query recipients:list - List all recipients
+      - mutation recipients:delete - Remove recipient
+    </recipients>
 
-    <prompts>
-      - GET /api/prompts/library
-      - POST /api/prompts/library
-      - GET /api/prompts/:id
-      - PUT /api/prompts/:id
-      - DELETE /api/prompts/:id
-      - GET /api/prompts/categories
-      - GET /api/prompts/examples
-    </prompts>
-
-    <search>
-      - GET /api/search/conversations?q=query
-      - GET /api/search/messages?q=query
-      - GET /api/search/artifacts?q=query
-      - GET /api/search/prompts?q=query
-    </search>
-
-    <folders>
-      - GET /api/folders
-      - POST /api/folders
-      - PUT /api/folders/:id
-      - DELETE /api/folders/:id
-      - POST /api/folders/:id/items
-      - DELETE /api/folders/:id/items/:conversationId
-    </folders>
-
-    <usage>
-      - GET /api/usage/daily
-      - GET /api/usage/monthly
-      - GET /api/usage/by-model
-      - GET /api/usage/conversations/:id
-    </usage>
-
-    <settings>
-      - GET /api/settings
-      - PUT /api/settings
-      - GET /api/settings/custom-instructions
-      - PUT /api/settings/custom-instructions
-    </settings>
-
-    <claude_api>
-      - POST /api/claude/chat (proxy to Claude API)
-      - POST /api/claude/chat/stream (streaming proxy)
-      - GET /api/claude/models
-      - POST /api/claude/images/upload
-    </claude_api>
+    <occasions>
+      - query occasions:getSuggested - Get occasion suggestions
+      - query occasions:getUpcoming - Get upcoming events/holidays
+      - query occasions:getStyles - Get styles for occasion
+    </occasions>
   </api_endpoints_summary>
 
   <ui_layout>
     <main_structure>
-      - Three-column layout: sidebar (conversations), main (chat), panel (artifacts)
-      - Collapsible sidebar with resize handle
-      - Responsive breakpoints: mobile (single column), tablet (two column), desktop (three column)
-      - Persistent header with project/model selector
-      - Bottom input area with send button and options
+      - Single-page app with top navigation bar
+      - Playful, colorful gradient backgrounds
+      - Main content area with card-focused layout
+      - Floating action button for "Create Card"
+      - Footer with links and social
     </main_structure>
 
-    <sidebar_left>
-      - New chat button (prominent)
-      - Project selector dropdown
-      - Search conversations input
-      - Conversations list (grouped by date: Today, Yesterday, Previous 7 days, etc.)
-      - Folder tree view (collapsible)
-      - Settings gear icon at bottom
-      - User profile at bottom
-    </sidebar_left>
+    <navigation>
+      - Logo (CardCraft AI with sparkle icon)
+      - Create Card (primary button)
+      - My Cards
+      - Address Book
+      - User menu (avatar dropdown: Settings, Subscription, Logout)
+    </navigation>
 
-    <main_chat_area>
-      - Conversation title (editable inline)
-      - Model selector badge
-      - Message history (scrollable)
-      - Welcome screen for new conversations
-      - Suggested prompts (empty state)
-      - Input area with formatting toolbar
-      - Attachment button for images
-      - Send button with loading state
-      - Stop generation button
-    </main_chat_area>
+    <landing_page>
+      - Hero section with animated card examples
+      - "Create Your First Card" CTA
+      - Feature highlights (AI, Handwriting, Print)
+      - Occasion showcase carousel
+      - Pricing section
+      - Testimonials
+      - Footer
+    </landing_page>
 
-    <artifacts_panel>
-      - Artifact header with title and type badge
-      - Code editor or preview pane
-      - Tabs for multiple artifacts
-      - Full-screen toggle
-      - Download button
-      - Edit/Re-prompt button
-      - Version selector
-      - Close panel button
-    </artifacts_panel>
+    <dashboard>
+      - Welcome message with user name
+      - Quick create buttons by occasion
+      - Recent cards carousel
+      - Upcoming occasions/reminders
+      - Usage stats (cards created this month)
+    </dashboard>
+
+    <card_creation_flow>
+      Step 1: Choose Occasion
+        - Grid of colorful occasion cards
+        - Search/filter options
+        - Custom occasion input
+
+      Step 2: Describe Your Card
+        - Text input for AI prompt
+        - Style selector (visual grid)
+        - Recipient info (optional)
+
+      Step 3: AI Generation
+        - Loading animation with card-themed graphics
+        - 4 generated options displayed
+        - Regenerate or refine buttons
+        - Select favorite to continue
+
+      Step 4: Card Editor
+        - Canvas with card preview
+        - Toolbar: text, photos, stickers, handwriting
+        - Properties panel on right
+        - Front/Inside/Back tabs
+        - Preview toggle
+
+      Step 5: Delivery Options
+        - Digital vs Print toggle
+        - Digital: email input, schedule, message
+        - Print: address, size, quality options
+        - Price display for print
+        - Checkout flow
+
+      Step 6: Confirmation
+        - Celebration animation
+        - Card summary
+        - Share buttons
+        - Return to dashboard
+    </card_creation_flow>
+
+    <my_cards>
+      - Tab filters: All, Drafts, Sent, Printed
+      - Grid view of card thumbnails
+      - Card hover shows quick actions
+      - Click to view/edit
+      - Sort by date, occasion
+    </my_cards>
+
+    <card_detail>
+      - Large card preview
+      - Edit button
+      - Delivery history
+      - Re-send options
+      - Delete/archive
+    </card_detail>
+
+    <settings>
+      - Profile section (name, email, avatar)
+      - Handwriting samples manager
+      - Default preferences
+      - Address book
+      - Subscription management
+      - Notification settings
+      - Account actions (delete account)
+    </settings>
 
     <modals_overlays>
-      - Settings modal (tabbed interface)
-      - Share conversation modal
-      - Export options modal
-      - Project settings modal
-      - Prompt library modal
-      - Command palette overlay
-      - Keyboard shortcuts reference
+      - Handwriting upload modal
+      - Photo crop/edit modal
+      - AI generation loading overlay
+      - Print order confirmation modal
+      - Subscription upgrade modal
+      - Delete confirmation dialog
+      - Success celebration overlay with confetti
+      - Onboarding tutorial slides
     </modals_overlays>
   </ui_layout>
 
   <design_system>
     <color_palette>
-      - Primary: Orange/amber accent (#CC785C claude-style)
-      - Background: White (light mode), Dark gray (#1A1A1A dark mode)
-      - Surface: Light gray (#F5F5F5 light), Darker gray (#2A2A2A dark)
-      - Text: Near black (#1A1A1A light), Off-white (#E5E5E5 dark)
-      - Borders: Light gray (#E5E5E5 light), Dark gray (#404040 dark)
-      - Code blocks: Monaco editor theme
+      - Primary: Vibrant Purple (#8B5CF6)
+      - Secondary: Hot Pink (#EC4899)
+      - Accent: Sunny Yellow (#FBBF24)
+      - Success: Mint Green (#34D399)
+      - Error: Coral Red (#F87171)
+      - Background: Soft cream (#FFFBEB) with gradient accents
+      - Cards: White (#FFFFFF) with subtle shadows
+      - Text Primary: Deep purple (#4C1D95)
+      - Text Secondary: Warm gray (#6B7280)
+      - Gradients: Purple-to-pink, Yellow-to-orange for CTAs
     </color_palette>
 
     <typography>
-      - Sans-serif system font stack (Inter, SF Pro, Roboto, system-ui)
-      - Headings: font-semibold
-      - Body: font-normal, leading-relaxed
-      - Code: Monospace (JetBrains Mono, Consolas, Monaco)
-      - Message text: text-base (16px), comfortable line-height
+      - Display font: Quicksand (playful, rounded)
+      - Body font: Inter (readable, clean)
+      - Accent font: Pacifico (handwritten feel for highlights)
+      - Headings: font-bold, playful sizes
+      - Body: 16px base, comfortable line height
+      - Button text: font-semibold, uppercase for primary
     </typography>
 
     <components>
-      <message_bubble>
-        - User messages: Right-aligned, subtle background
-        - Assistant messages: Left-aligned, no background
-        - Markdown formatting with proper spacing
-        - Inline code with bg-gray-100 background
-        - Code blocks with syntax highlighting
-        - Copy button on code blocks
-      </message_bubble>
-
-      <buttons>
-        - Primary: Orange/amber background, white text, rounded
-        - Secondary: Border style with hover fill
-        - Icon buttons: Square with hover background
-        - Disabled state: Reduced opacity, no pointer events
-      </buttons>
-
-      <inputs>
-        - Rounded borders with focus ring
-        - Textarea auto-resize
-        - Placeholder text in gray
-        - Error states in red
-        - Character counter
-      </inputs>
-
-      <cards>
-        - Subtle border or shadow
-        - Rounded corners (8px)
-        - Padding: p-4 to p-6
-        - Hover state: slight shadow increase
-      </cards>
+      - Buttons: Rounded-full, gradient backgrounds, shadow on hover, bounce animation
+      - Cards: Rounded-2xl, soft shadows, slight tilt on hover
+      - Inputs: Rounded-xl, thick borders, colorful focus states
+      - Modals: Rounded-3xl, slide-up animation, confetti on success
+      - Navigation: Pill-shaped links, active state with gradient underline
+      - Icons: Phosphor icons (playful, consistent weight)
+      - Badges: Pill shape, vibrant colors
     </components>
 
     <animations>
-      - Smooth transitions (150-300ms)
-      - Fade in for new messages
-      - Slide in for sidebar
-      - Typing indicator animation
-      - Loading spinner for generation
-      - Skeleton loaders for content
+      - Page transitions: Fade and slight slide (200ms)
+      - Button hover: Scale up 1.05 with bounce
+      - Card hover: Slight rotation (-2deg to 2deg) and lift
+      - Loading: Card-themed spinner (rotating envelope)
+      - Success: Confetti explosion from center
+      - Modals: Spring animation slide up
+      - Staggered list animations for card grids
+      - Typewriter effect for AI-generated text
     </animations>
   </design_system>
 
   <key_interactions>
-    <message_flow>
-      1. User types message in input field
-      2. Optional: Attach images via button
-      3. Click send or press Enter
-      4. Message appears in chat immediately
-      5. Typing indicator shows while waiting
-      6. Response streams in word by word
-      7. Code blocks render with syntax highlighting
-      8. Artifacts detected and rendered in side panel
-      9. Message complete, enable regenerate option
-    </message_flow>
+    <new_user_onboarding>
+      1. User lands on marketing page
+      2. Clicks "Create Your First Card Free"
+      3. Prompted to sign up (email or Google)
+      4. Sees welcome animation
+      5. Brief tutorial (3 slides: Choose occasion, AI creates, Send anywhere)
+      6. Lands on dashboard with prompt to create first card
+      7. 7-day trial starts automatically
+    </new_user_onboarding>
 
-    <artifact_flow>
-      1. Assistant generates artifact in response
-      2. Artifact panel slides in from right
-      3. Content renders (code with highlighting or live preview)
-      4. User can edit artifact inline
-      5. "Re-prompt" button to iterate with Claude
-      6. Download or copy artifact content
-      7. Full-screen mode for detailed work
-      8. Close panel to return to chat focus
-    </artifact_flow>
+    <creating_a_card>
+      1. User clicks "Create Card" button
+      2. Selects occasion from colorful grid (e.g., "Birthday")
+      3. Types description: "A magical unicorn birthday card for my 7-year-old daughter"
+      4. Selects style: "Watercolor"
+      5. Clicks "Generate Card Magic"
+      6. Sees fun loading animation while AI works
+      7. 4 card options appear with sparkle effects
+      8. User selects favorite
+      9. Editor opens with selected design
+      10. User adds text, adjusts layout, maybe adds photo
+      11. Clicks "Preview" to see final result
+      12. Clicks "Send This Card"
+    </creating_a_card>
 
-    <conversation_management>
-      1. Click "New Chat" to start fresh conversation
-      2. Conversations auto-save with first message
-      3. Auto-generate title from first exchange
-      4. Click title to rename inline
-      5. Drag conversations into folders
-      6. Right-click for context menu (pin, archive, delete, export)
-      7. Search filters conversations in real-time
-      8. Click conversation to switch context
-    </conversation_management>
+    <adding_handwriting>
+      1. User clicks "Use My Handwriting" in editor
+      2. If no samples, modal prompts to upload
+      3. User uploads photo of handwritten text
+      4. AI processes and shows preview
+      5. User names it ("My Cursive") and saves
+      6. Handwriting applied to selected text
+      7. Can switch between samples or use regular fonts
+    </adding_handwriting>
+
+    <sending_digital_card>
+      1. User completes card design
+      2. Selects "Send Digital"
+      3. Enters recipient email
+      4. Optionally schedules for future date
+      5. Adds personal message
+      6. Clicks "Send Card"
+      7. Confirmation with confetti
+      8. Card link copied to clipboard
+      9. Email sent to recipient
+      10. User notified when card is viewed
+    </sending_digital_card>
+
+    <ordering_print>
+      1. User completes card design
+      2. Selects "Print & Mail"
+      3. Chooses card size (5x7 default)
+      4. Selects paper quality
+      5. Enters recipient address (or selects from address book)
+      6. Sees price and delivery estimate
+      7. Proceeds to checkout (Stripe)
+      8. Enters payment info
+      9. Order confirmed with order number
+      10. Receives email updates on print status
+      11. Tracking available once shipped
+    </ordering_print>
+
+    <managing_subscription>
+      1. User clicks profile > Subscription
+      2. Sees current plan and usage
+      3. Can upgrade (if on trial/monthly)
+      4. Can cancel (takes effect at period end)
+      5. Can update payment method via Stripe portal
+      6. Sees billing history
+    </managing_subscription>
   </key_interactions>
 
   <implementation_steps>
     <step number="1">
-      <title>Setup Project Foundation and Database</title>
+      <title>Project Foundation and Auth</title>
       <tasks>
-        - Initialize Express server with SQLite database
-        - Set up Claude API client with streaming support
-        - Create database schema with migrations
-        - Implement authentication endpoints
-        - Set up basic CORS and middleware
-        - Create health check endpoint
+        - Initialize Next.js 14 with App Router
+        - Set up Tailwind CSS with custom playful theme
+        - Configure Convex project
+        - Integrate Clerk authentication
+        - Create basic layout with navigation
+        - Set up user database schema
+        - Implement sign up/login flows
+        - Create protected routes
       </tasks>
     </step>
 
     <step number="2">
-      <title>Build Core Chat Interface</title>
+      <title>Core Database and API Structure</title>
       <tasks>
-        - Create main layout with sidebar and chat area
-        - Implement message display with markdown rendering
-        - Add streaming message support with SSE
-        - Build input area with auto-resize textarea
-        - Add code block syntax highlighting
-        - Implement stop generation functionality
-        - Add typing indicators and loading states
+        - Define all Convex schemas
+        - Create user management mutations/queries
+        - Set up file storage for images
+        - Create card CRUD operations
+        - Set up recipient/address book tables
+        - Implement subscription tables
+        - Add proper indexes for queries
       </tasks>
     </step>
 
     <step number="3">
-      <title>Conversation Management</title>
+      <title>AI Card Generation with Nano Banana Pro</title>
       <tasks>
-        - Create conversation list in sidebar
-        - Implement new conversation creation
-        - Add conversation switching
-        - Build conversation rename functionality
-        - Implement delete with confirmation
-        - Add conversation search
-        - Create conversation grouping by date
+        - Install @google/genai SDK: npm install @google/genai
+        - Create Convex action for AI generation (actions/generateCard.ts)
+        - Initialize GoogleGenAI client with GEMINI_API_KEY
+        - Use gemini-3-pro-image-preview model for high-quality output
+        - Use gemini-2.5-flash-image for quick preview generation
+        - Build occasion selector UI with colorful cards
+        - Create prompt builder that combines occasion + style + user description
+        - Implement aspect ratio selection based on card size (5x7 -> 5:4 ratio)
+        - Generate 4 variations using numberOfImages config
+        - Store generated images in Convex file storage
+        - Build animated loading state during AI generation (~10-30 seconds)
+        - Display generated options in responsive grid
+        - Add regenerate with "refine prompt" option
+        - Implement multi-turn chat for iterative editing
       </tasks>
     </step>
 
     <step number="4">
-      <title>Artifacts System</title>
+      <title>Card Editor Interface</title>
       <tasks>
-        - Build artifact detection from Claude responses
-        - Create artifact rendering panel
-        - Implement code artifact viewer
-        - Add HTML/SVG live preview
-        - Build artifact editing interface
-        - Add artifact versioning
-        - Implement full-screen artifact view
+        - Set up canvas editing library (Fabric.js or similar)
+        - Build toolbar with editing tools
+        - Implement text editing
+        - Add font selector
+        - Create color picker
+        - Build layer management
+        - Add undo/redo
+        - Create card preview modes
+        - Implement save draft
       </tasks>
     </step>
 
     <step number="5">
-      <title>Projects and Organization</title>
+      <title>Handwriting Replication with Nano Banana Pro</title>
       <tasks>
-        - Create projects CRUD endpoints
-        - Build project selector UI
-        - Implement project-specific custom instructions
-        - Add folder system for conversations
-        - Create drag-and-drop organization
-        - Build project settings panel
+        - Create handwriting upload modal with image preview
+        - Accept PNG/JPG samples of user's handwriting
+        - Store samples in Convex file storage linked to user
+        - Create Convex action to generate handwritten text:
+          * Send handwriting sample + desired text to gemini-3-pro-image-preview
+          * Use reference image capability for style matching
+          * Return generated handwritten text as transparent PNG
+        - Build handwriting selector dropdown in editor
+        - Apply handwritten text as image layer on card
+        - Allow naming and managing multiple samples per user
+        - Preview handwriting style before applying
+        - Cache generated handwriting for frequently used phrases
       </tasks>
     </step>
 
     <step number="6">
-      <title>Advanced Features</title>
+      <title>Photo Integration with AI Enhancement</title>
       <tasks>
-        - Add model selection dropdown
-        - Implement temperature and parameter controls
-        - Build image upload functionality
-        - Create message editing and regeneration
-        - Add conversation branching
-        - Implement export functionality
+        - Build photo upload component with drag-drop (react-dropzone)
+        - Create photo cropping interface with aspect ratio presets
+        - Integrate Nano Banana Pro for AI photo enhancement:
+          * Background removal using reference image prompting
+          * Style transfer to match card aesthetic
+          * Face detection for smart positioning
+        - Add photo filters/adjustments (brightness, contrast, saturation)
+        - Implement photo positioning and scaling in canvas editor
+        - Support multiple photos per card (up to 14 reference images supported)
+        - Create photo collage layout presets
       </tasks>
     </step>
 
     <step number="7">
-      <title>Settings and Customization</title>
+      <title>Digital Delivery</title>
       <tasks>
-        - Build settings modal with tabs
-        - Implement theme switching (light/dark)
-        - Add custom instructions management
-        - Create keyboard shortcuts
-        - Build prompt library
-        - Add usage tracking dashboard
+        - Create digital delivery flow UI
+        - Build card viewing page (public link)
+        - Implement email sending with Resend
+        - Create animated card reveal experience
+        - Add scheduling functionality
+        - Implement read receipts
+        - Build social sharing
       </tasks>
     </step>
 
     <step number="8">
-      <title>Sharing and Collaboration</title>
+      <title>Print-on-Demand Integration with Lob</title>
       <tasks>
-        - Implement conversation sharing with tokens
-        - Create public share view
-        - Add export to multiple formats
-        - Build prompt templates
-        - Create example conversations
+        - Set up Lob API integration
+        - Create print options UI
+        - Build address input with validation
+        - Implement print file generation (high-res)
+        - Create order submission flow
+        - Set up webhook for status updates
+        - Build order tracking UI
       </tasks>
     </step>
 
     <step number="9">
-      <title>Polish and Optimization</title>
+      <title>Subscription and Billing with Stripe</title>
       <tasks>
-        - Optimize for mobile responsiveness
-        - Add command palette (Cmd+K)
-        - Implement comprehensive keyboard navigation
-        - Add onboarding flow
-        - Create accessibility improvements
-        - Performance optimization and caching
+        - Set up Stripe integration
+        - Create pricing page
+        - Implement checkout flow
+        - Build subscription management
+        - Add usage tracking and limits
+        - Create upgrade prompts
+        - Handle webhook events
+        - Implement trial period logic
+      </tasks>
+    </step>
+
+    <step number="10">
+      <title>Dashboard and Card Management</title>
+      <tasks>
+        - Build main dashboard
+        - Create My Cards gallery
+        - Implement card filtering/sorting
+        - Add card detail view
+        - Build recipient address book
+        - Create occasion reminders
+        - Add usage statistics
+      </tasks>
+    </step>
+
+    <step number="11">
+      <title>Polish and Animations</title>
+      <tasks>
+        - Add confetti celebrations
+        - Implement page transitions
+        - Create loading animations
+        - Add hover effects and micro-interactions
+        - Build onboarding tutorial
+        - Ensure mobile responsiveness
+        - Add keyboard navigation
+        - Test and fix accessibility
+      </tasks>
+    </step>
+
+    <step number="12">
+      <title>Landing Page and Marketing</title>
+      <tasks>
+        - Design and build landing page
+        - Create feature showcase sections
+        - Add animated card examples
+        - Build pricing comparison
+        - Add testimonials section
+        - SEO optimization
+        - Social meta tags
       </tasks>
     </step>
   </implementation_steps>
 
   <success_criteria>
     <functionality>
-      - Streaming chat responses work smoothly
-      - Artifact detection and rendering accurate
-      - Conversation management intuitive and reliable
-      - Project organization clear and useful
-      - Image upload and display working
-      - All CRUD operations functional
+      - Users can sign up and manage their account
+      - AI generates unique, high-quality card artwork
+      - Card editor allows full customization
+      - Handwriting replication works accurately
+      - Photos can be uploaded and edited
+      - Digital cards can be sent via email/link
+      - Print orders are processed successfully
+      - Subscriptions manage access correctly
+      - All CRUD operations work correctly
     </functionality>
 
     <user_experience>
-      - Interface matches claude.ai design language
-      - Responsive on all device sizes
-      - Smooth animations and transitions
-      - Fast response times and minimal lag
-      - Intuitive navigation and workflows
-      - Clear feedback for all actions
+      - Card creation flow takes under 5 minutes
+      - Interface is intuitive without training
+      - Mobile experience is fully functional
+      - Loading states keep users informed
+      - Error messages are helpful and friendly
+      - Celebrations make users smile
+      - Navigation is clear and consistent
     </user_experience>
 
     <technical_quality>
-      - Clean, maintainable code structure
+      - Pages load in under 2 seconds
+      - AI generation completes in under 30 seconds
+      - No security vulnerabilities
       - Proper error handling throughout
-      - Secure API key management
-      - Optimized database queries
-      - Efficient streaming implementation
-      - Comprehensive testing coverage
+      - Clean, maintainable code structure
+      - Database queries are efficient
+      - File uploads handle edge cases
     </technical_quality>
 
     <design_polish>
-      - Consistent with claude.ai visual design
-      - Beautiful typography and spacing
-      - Smooth animations and micro-interactions
-      - Excellent contrast and accessibility
+      - Visual design is consistent and playful
+      - Animations are smooth (60fps)
+      - Color palette evokes joy and creativity
+      - Typography is readable and fun
+      - Responsive breakpoints work correctly
+      - Accessible to screen readers
       - Professional, polished appearance
-      - Dark mode fully implemented
     </design_polish>
   </success_criteria>
 </project_specification>

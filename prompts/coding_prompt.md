@@ -27,8 +27,14 @@ cat .linear_project.json
 git log --oneline -20
 ```
 
-Understanding the `app_spec.txt` is critical - it contains the full requirements
-for the application you're building.
+Understanding `app_spec.txt` is critical - it contains:
+- `<project_name>` and `<overview>` - what you're building
+- `<technology_stack>` - frameworks, libraries, and architecture
+- `<core_features>` - all features that need to be implemented
+- `<database_schema>` - data model and relationships
+- `<api_endpoints_summary>` - backend API structure
+- `<ui_layout>` and `<design_system>` - visual design requirements
+- `<success_criteria>` - what "done" looks like
 
 ### STEP 2: CHECK LINEAR STATUS
 
@@ -70,7 +76,7 @@ new, you MUST run verification tests.
 Use `mcp__linear__list_issues` with the project ID and status "Done" to find 1-2
 completed features that are core to the app's functionality.
 
-Test these through the browser using Puppeteer:
+Test these through the browser using dev-browser:
 - Navigate to the feature
 - Verify it still works as expected
 - Take screenshots to confirm
@@ -108,30 +114,64 @@ This signals to any other agents (or humans watching) that this issue is being w
 
 Read the issue description for test steps and implement accordingly:
 
-1. Write the code (frontend and/or backend as needed)
-2. Test manually using browser automation (see Step 8)
-3. Fix any issues discovered
-4. Verify the feature works end-to-end
+1. **For UI work:** Use the Frontend Design Tools (see section below)
+   - Check shadcn for pre-built components
+   - Use 21st.dev to generate custom components
+   - Use `creating-frontend-designs` skill for pages/layouts
+2. **For backend work:** Write the code directly
+3. Test manually using browser automation (see Step 8)
+4. Fix any issues discovered
+5. Verify the feature works end-to-end
 
-### STEP 8: VERIFY WITH BROWSER AUTOMATION
+**Important:** Don't build UI components by hand when design tools are available.
 
-**CRITICAL:** You MUST verify features through the actual UI.
+### STEP 8: VERIFY WITH BROWSER AUTOMATION (dev-browser)
 
-Use browser automation tools:
-- `mcp__puppeteer__puppeteer_navigate` - Start browser and go to URL
-- `mcp__puppeteer__puppeteer_screenshot` - Capture screenshot
-- `mcp__puppeteer__puppeteer_click` - Click elements
-- `mcp__puppeteer__puppeteer_fill` - Fill form inputs
+**CRITICAL:** You MUST verify features through the actual UI using the dev-browser skill.
+
+**First, start the dev-browser server (if not running):**
+```bash
+cd ~/.claude/plugins/marketplaces/dev-browser-marketplace/skills/dev-browser && ./server.sh &
+```
+Wait for the "Ready" message before running scripts.
+
+**Then write Bash scripts to test:**
+```bash
+cd ~/.claude/plugins/marketplaces/dev-browser-marketplace/skills/dev-browser && npx tsx <<'EOF'
+import { connect, waitForPageLoad } from "@/client.js";
+
+const client = await connect();
+const page = await client.page("test-feature");
+await page.setViewportSize({ width: 1280, height: 800 });
+
+await page.goto("http://localhost:3000");
+await waitForPageLoad(page);
+
+// Take screenshot
+await page.screenshot({ path: "tmp/screenshot.png" });
+
+// Log current state
+console.log({ title: await page.title(), url: page.url() });
+
+await client.disconnect();
+EOF
+```
+
+**Key dev-browser patterns:**
+- `await page.goto(url)` - Navigate to URL
+- `await page.screenshot({ path: "tmp/screenshot.png" })` - Capture screenshot
+- `await page.click("selector")` - Click elements
+- `await page.fill("selector", "text")` - Fill form inputs
+- `await client.getAISnapshot("page-name")` - Get accessibility tree for element discovery
 
 **DO:**
 - Test through the UI with clicks and keyboard input
-- Take screenshots to verify visual appearance
+- Take screenshots to verify visual appearance (saved to `tmp/` directory)
 - Check for console errors in browser
 - Verify complete user workflows end-to-end
 
 **DON'T:**
 - Only test with curl commands (backend testing alone is insufficient)
-- Use JavaScript evaluation to bypass UI (no shortcuts)
 - Skip visual verification
 - Mark issues Done without thorough verification
 
@@ -148,7 +188,7 @@ After thorough verification:
    - [Key implementation details]
 
    ### Verification
-   - Tested via Puppeteer browser automation
+   - Tested via dev-browser (Playwright) browser automation
    - Screenshots captured
    - All test steps from issue description verified
 
@@ -237,17 +277,129 @@ Before context fills up:
 
 ---
 
+## FRONTEND DESIGN TOOLS
+
+**You have access to specialized tools for building high-quality UI.** Use them.
+
+### Tool Selection Guide
+
+| Tool | When to Use |
+|------|-------------|
+| **Skill: `creating-frontend-designs`** | Building new pages, complex layouts, distinctive UI components |
+| **shadcn MCP** (`mcp__shadcn__*`) | Finding pre-built components, installing UI primitives |
+| **21st.dev** (`mcp__magic__*`) | Generating custom components, getting inspiration, refining existing UI |
+
+### 1. Frontend Design Skill
+
+Invoke when creating pages, layouts, dashboards, or any distinctive UI:
+
+```
+Use the Skill tool with skill: "creating-frontend-designs"
+```
+
+See @~/.claude/skills/creating-frontend-designs/SKILL.md for the full 6-phase design workflow.
+
+### 2. shadcn MCP Tools
+
+Use these to search for and install pre-built components:
+
+- `mcp__shadcn__search_items_in_registries` - Find components by name/description
+- `mcp__shadcn__view_items_in_registries` - View component details and code
+- `mcp__shadcn__get_item_examples_from_registries` - Get usage examples
+- `mcp__shadcn__get_add_command_for_items` - Get install command
+
+**Example workflow:**
+```
+1. Search: mcp__shadcn__search_items_in_registries(registries=["@shadcn"], query="data table")
+2. View: mcp__shadcn__view_items_in_registries(items=["@shadcn/data-table"])
+3. Examples: mcp__shadcn__get_item_examples_from_registries(registries=["@shadcn"], query="data-table-demo")
+4. Install: mcp__shadcn__get_add_command_for_items(items=["@shadcn/data-table"])
+```
+
+### 3. 21st.dev Magic Component Tools
+
+Use these for component generation and inspiration:
+
+- `mcp__magic__21st_magic_component_builder` - Generate new UI components from description
+- `mcp__magic__21st_magic_component_inspiration` - Browse existing components for ideas
+- `mcp__magic__21st_magic_component_refiner` - Improve/redesign existing components
+- `mcp__magic__logo_search` - Find company logos (SVG/JSX/TSX)
+
+**When building a new component:**
+```
+mcp__magic__21st_magic_component_builder(
+  message="User's original request",
+  searchQuery="card with hover effect",
+  absolutePathToCurrentFile="/path/to/file.tsx",
+  absolutePathToProjectDirectory="/path/to/project",
+  standaloneRequestQuery="Create a product card with image, title, price, and hover animation"
+)
+```
+
+**When improving existing UI:**
+```
+mcp__magic__21st_magic_component_refiner(
+  userMessage="Make this look more modern",
+  absolutePathToRefiningFile="/path/to/component.tsx",
+  context="The card component needs better spacing and hover states"
+)
+```
+
+### Frontend Implementation Workflow
+
+For ANY UI work, follow this order:
+
+1. **Check shadcn first** - Is there a pre-built component that fits?
+2. **Generate with 21st.dev** - If custom component needed, generate it
+3. **Apply frontend-design skill** - For pages/layouts needing polish
+4. **Refine with 21st.dev** - If result needs improvement
+
+**NEVER** build complex UI by hand when these tools are available.
+
+---
+
 ## TESTING REQUIREMENTS
 
-**ALL testing must use browser automation tools.**
+**ALL testing must use the dev-browser skill (Playwright via Bash scripts).**
 
-Available Puppeteer tools:
-- `mcp__puppeteer__puppeteer_navigate` - Go to URL
-- `mcp__puppeteer__puppeteer_screenshot` - Capture screenshot
-- `mcp__puppeteer__puppeteer_click` - Click elements
-- `mcp__puppeteer__puppeteer_fill` - Fill form inputs
-- `mcp__puppeteer__puppeteer_select` - Select dropdown options
-- `mcp__puppeteer__puppeteer_hover` - Hover over elements
+**Start the server first:**
+```bash
+cd ~/.claude/plugins/marketplaces/dev-browser-marketplace/skills/dev-browser && ./server.sh &
+```
+
+**Example test script:**
+```bash
+cd ~/.claude/plugins/marketplaces/dev-browser-marketplace/skills/dev-browser && npx tsx <<'EOF'
+import { connect, waitForPageLoad } from "@/client.js";
+
+const client = await connect();
+const page = await client.page("my-test");
+await page.setViewportSize({ width: 1280, height: 800 });
+
+// Navigate
+await page.goto("http://localhost:3000");
+await waitForPageLoad(page);
+
+// Interact
+await page.fill('input[name="email"]', 'test@example.com');
+await page.click('button[type="submit"]');
+
+// Verify
+await page.screenshot({ path: "tmp/result.png" });
+console.log({ url: page.url(), title: await page.title() });
+
+await client.disconnect();
+EOF
+```
+
+**Key Playwright methods:**
+- `page.goto(url)` - Navigate to URL
+- `page.screenshot({ path })` - Capture screenshot
+- `page.click(selector)` - Click elements
+- `page.fill(selector, text)` - Fill form inputs
+- `page.selectOption(selector, value)` - Select dropdown options
+- `page.hover(selector)` - Hover over elements
+- `client.getAISnapshot(pageName)` - Get accessibility tree for element discovery
 
 Test like a human user with mouse and keyboard. Don't take shortcuts.
 
@@ -292,9 +444,11 @@ than to start another issue and risk running out of context mid-implementation.
 
 **Quality Bar:**
 - Zero console errors
-- Polished UI matching the design in app_spec.txt
+- UI matches the `<design_system>` in app_spec.txt
+- UI built using frontend design tools (not hand-coded from scratch)
 - All features work end-to-end through the UI
-- Fast, responsive, professional
+- Meets the `<success_criteria>` defined in the spec
+- Fast, responsive, professional - no "AI slop" aesthetics
 
 **Context is finite.** You cannot monitor your context usage, so err on the side
 of ending sessions early with good handoff notes. The next agent will continue.
