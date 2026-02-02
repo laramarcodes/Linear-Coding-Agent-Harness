@@ -1,0 +1,700 @@
+{
+  "backup_date": "2025-11-19T23:30:00Z",
+  "total_contacts": 46,
+  "note": "Only 1 contact (Fei-Fei Li) has a photo property - all others are null",
+  "contacts_with_photos": 1,
+  "contacts": [
+    {
+      "id": "285131289311",
+      "email": "goldberg@berkeley.edu",
+      "firstname": "Ken",
+      "lastname": "Goldberg",
+      "company": "UC Berkeley",
+      "jobtitle": "Distinguished Professor & AUTOLAB Director",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.346Z",
+      "company_associations": [
+        {"id": "184259779263", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285131289312",
+      "email": "abhinav@skild.ai",
+      "firstname": "Abhinav",
+      "lastname": "Gupta",
+      "company": "Skild AI",
+      "jobtitle": "President & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.351Z",
+      "company_associations": [
+        {"id": "184259779262", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285131289313",
+      "email": "asaunders@bostondynamics.com",
+      "firstname": "Aaron",
+      "lastname": "Saunders",
+      "company": "Boston Dynamics",
+      "jobtitle": "CTO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.360Z",
+      "company_associations": [
+        {"id": "184484507342", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285134885607",
+      "email": "quan@physicalintelligence.company",
+      "firstname": "Quan",
+      "lastname": "Vuong",
+      "company": "Physical Intelligence",
+      "jobtitle": "Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.362Z",
+      "company_associations": [
+        {"id": "184224466680", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285136686806",
+      "email": "rplayter@bostondynamics.com",
+      "firstname": "Robert",
+      "lastname": "Playter",
+      "company": "Boston Dynamics",
+      "jobtitle": "CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184484507342", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285136686807",
+      "email": "wendy@intrinsic.com",
+      "firstname": "Wendy",
+      "lastname": "Tan White",
+      "company": "Intrinsic (Alphabet)",
+      "jobtitle": "CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184482707147", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285140281032",
+      "email": "ash@standardbots.com",
+      "firstname": "Ash",
+      "lastname": "Higgins",
+      "company": "Standard Bots",
+      "jobtitle": "GM of AI",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.346Z",
+      "company_associations": [
+        {"id": "184480907974", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285140281033",
+      "email": "derik@osaro.com",
+      "firstname": "Derik",
+      "lastname": "Pridmore",
+      "company": "Osaro",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.343Z",
+      "company_associations": [
+        {"id": "184340085461", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285140281034",
+      "email": "peggy.johnson@agility.com",
+      "firstname": "Peggy",
+      "lastname": "Johnson",
+      "company": "Agility Robotics",
+      "jobtitle": "CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.363Z",
+      "company_associations": [
+        {"id": "184439384763", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285181743847",
+      "email": "rockyduan94@gmail.com",
+      "firstname": "Rocky",
+      "lastname": "Duan",
+      "company": "Amazon Robotics",
+      "jobtitle": "Research Lead - FAR Team",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.348Z",
+      "company_associations": [],
+      "photo": null
+    },
+    {
+      "id": "285181743848",
+      "email": "jquinlivan@amazon.com",
+      "firstname": "Joseph",
+      "lastname": "Quinlivan",
+      "company": "Amazon",
+      "jobtitle": "VP - Fulfillment Technologies & Robotics",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.349Z",
+      "company_associations": [
+        {"id": "184484507343", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285185345231",
+      "email": "deepak@skild.ai",
+      "firstname": "Deepak",
+      "lastname": "Pathak",
+      "company": "Skild AI",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.354Z",
+      "company_associations": [
+        {"id": "184259779262", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285188951786",
+      "email": "steve.odea@apptronik.com",
+      "firstname": "Steve",
+      "lastname": "O'Dea",
+      "company": "Apptronik",
+      "jobtitle": "Chief Product & Technology Officer",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184488105689", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285188951787",
+      "email": "brad@cobot.com",
+      "firstname": "Brad",
+      "lastname": "Porter",
+      "company": "Collaborative Robotics",
+      "jobtitle": "Founder & CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.350Z",
+      "company_associations": [
+        {"id": "184375889599", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285207935681",
+      "email": "nick.paine@apptronik.com",
+      "firstname": "Nicholas",
+      "lastname": "Paine",
+      "company": "Apptronik",
+      "jobtitle": "CTO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.346Z",
+      "company_associations": [
+        {"id": "184488105689", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285207935682",
+      "email": "evan@standardbots.com",
+      "firstname": "Evan",
+      "lastname": "Beard",
+      "company": "Standard Bots",
+      "jobtitle": "Co-Founder & CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184480907974", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285211728577",
+      "email": "damion.shelton@agility.com",
+      "firstname": "Damion",
+      "lastname": "Shelton",
+      "company": "Agility Robotics",
+      "jobtitle": "Co-Founder & Chief Engagement Officer",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.349Z",
+      "company_associations": [
+        {"id": "184439384763", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285211728578",
+      "email": "cbfinn@cs.stanford.edu",
+      "firstname": "Chelsea",
+      "lastname": "Finn",
+      "company": "Physical Intelligence / Stanford",
+      "jobtitle": "Assistant Professor & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.352Z",
+      "company_associations": [
+        {"id": "184313099972", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285247860466",
+      "email": "michael.kahane@osaro.com",
+      "firstname": "Michael",
+      "lastname": "Kahane",
+      "company": "Osaro",
+      "jobtitle": "CTO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184340085461", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285247860467",
+      "email": "daniela@anthropic.com",
+      "firstname": "Daniela",
+      "lastname": "Amodei",
+      "company": "Anthropic",
+      "jobtitle": "President & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.348Z",
+      "company_associations": [
+        {"id": "184222665419", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285247860468",
+      "email": "brian@physicalintelligence.company",
+      "firstname": "Brian",
+      "lastname": "Ichter",
+      "company": "Physical Intelligence",
+      "jobtitle": "Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.352Z",
+      "company_associations": [
+        {"id": "184224466680", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285286259433",
+      "email": "pras.velagapudi@agility.com",
+      "firstname": "Pras",
+      "lastname": "Velagapudi",
+      "company": "Agility Robotics",
+      "jobtitle": "CTO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184439384763", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285286259434",
+      "email": "samir@dexterity.ai",
+      "firstname": "Samir",
+      "lastname": "Menon",
+      "company": "Dexterity",
+      "jobtitle": "Founder & CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184254377690", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285286259435",
+      "email": "eric@1x.tech",
+      "firstname": "Eric",
+      "lastname": "Jang",
+      "company": "1X Technologies",
+      "jobtitle": "VP of AI",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.352Z",
+      "company_associations": [
+        {"id": "184482707146", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285288062695",
+      "email": "ashok@tesla.com",
+      "firstname": "Ashok",
+      "lastname": "Elluswamy",
+      "company": "Tesla",
+      "jobtitle": "VP AI Software & Robotics",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184265175743", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285288062696",
+      "email": "peter@openai.com",
+      "firstname": "Peter",
+      "lastname": "Welinder",
+      "company": "OpenAI",
+      "jobtitle": "VP of Product & Partnerships",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.349Z",
+      "company_associations": [
+        {"id": "184466527934", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285288062697",
+      "email": "michael.vogelsong@cobot.com",
+      "firstname": "Michael",
+      "lastname": "Vogelsong",
+      "company": "Collaborative Robotics",
+      "jobtitle": "Head of Foundation Models AI",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.349Z",
+      "company_associations": [
+        {"id": "184375889599", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285314720501",
+      "email": "bernt@1x.tech",
+      "firstname": "Bernt Øivind",
+      "lastname": "Børnich",
+      "company": "1X Technologies",
+      "jobtitle": "Founder & CEO",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184482707146", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285314720502",
+      "email": "karol@physicalintelligence.company",
+      "firstname": "Karol",
+      "lastname": "Hausman",
+      "company": "Physical Intelligence",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.348Z",
+      "company_associations": [
+        {"id": "184224466680", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285314720503",
+      "email": "grauman@cs.utexas.edu",
+      "firstname": "Kristen",
+      "lastname": "Grauman",
+      "company": "Meta FAIR",
+      "jobtitle": "Research Director - Ego4D Lead",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.349Z",
+      "company_associations": [
+        {"id": "184377689833", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285355205360",
+      "email": "sam@openai.com",
+      "firstname": "Sam",
+      "lastname": "Altman",
+      "company": "OpenAI",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.346Z",
+      "company_associations": [
+        {"id": "184466527934", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285355205361",
+      "email": "malik@eecs.berkeley.edu",
+      "firstname": "Jitendra",
+      "lastname": "Malik",
+      "company": "Meta FAIR",
+      "jobtitle": "VP - Robotics Research",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184435787497", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285357252345",
+      "email": "dario@anthropic.com",
+      "firstname": "Dario",
+      "lastname": "Amodei",
+      "company": "Anthropic",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.344Z",
+      "company_associations": [
+        {"id": "184222665419", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285359049452",
+      "email": "brett@figure.ai",
+      "firstname": "Brett",
+      "lastname": "Adcock",
+      "company": "Figure AI",
+      "jobtitle": "CEO & Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184480907973", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285359049453",
+      "email": "jerry@persona-ai.com",
+      "firstname": "Jerry",
+      "lastname": "Pratt",
+      "company": "Persona AI",
+      "jobtitle": "Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184486306496", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285359049454",
+      "email": "jeff.cardenas@apptronik.com",
+      "firstname": "Jeff",
+      "lastname": "Cardenas",
+      "company": "Apptronik",
+      "jobtitle": "CEO & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.350Z",
+      "company_associations": [
+        {"id": "184488105689", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285360875212",
+      "email": "brad@openai.com",
+      "firstname": "Brad",
+      "lastname": "Lightcap",
+      "company": "OpenAI",
+      "jobtitle": "Chief Operating Officer",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.346Z",
+      "company_associations": [
+        {"id": "184466527934", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285360875213",
+      "email": "lerrel@nyu.edu",
+      "firstname": "Lerrel",
+      "lastname": "Pinto",
+      "company": "NYU",
+      "jobtitle": "Assistant Professor of Computer Science",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.348Z",
+      "company_associations": [
+        {"id": "184259779261", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285362671294",
+      "email": "kanishka@google.com",
+      "firstname": "Kanishka",
+      "lastname": "Rao",
+      "company": "Google DeepMind",
+      "jobtitle": "Research Director - Robotics",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.345Z",
+      "company_associations": [
+        {"id": "184437586681", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285362671295",
+      "email": "jorge.milburn@1x.tech",
+      "firstname": "Jorge",
+      "lastname": "Milburn",
+      "company": "1X Technologies",
+      "jobtitle": "VP of Sales",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184482707146", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285362671296",
+      "email": "tedxiao@google.com",
+      "firstname": "Ted",
+      "lastname": "Xiao",
+      "company": "Google DeepMind",
+      "jobtitle": "Staff Research Scientist - RT-2 Lead",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.352Z",
+      "company_associations": [
+        {"id": "184437586681", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285365143266",
+      "email": "svlevine@cs.berkeley.edu",
+      "firstname": "Sergey",
+      "lastname": "Levine",
+      "company": "Physical Intelligence / UC Berkeley",
+      "jobtitle": "Associate Professor & Co-Founder",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184437587642", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285367272144",
+      "email": "caitlin@openai.com",
+      "firstname": "Caitlin",
+      "lastname": "Kalinowski",
+      "company": "OpenAI",
+      "jobtitle": "Head of Robotics & Consumer Hardware",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.347Z",
+      "company_associations": [
+        {"id": "184466527934", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285371301574",
+      "email": "torsten@intrinsic.com",
+      "firstname": "Torsten",
+      "lastname": "Kroeger",
+      "company": "Intrinsic (Alphabet)",
+      "jobtitle": "CTO / Chief Science Officer",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.350Z",
+      "company_associations": [
+        {"id": "184482707147", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "285371301575",
+      "email": "pabbeel@cs.berkeley.edu",
+      "firstname": "Pieter",
+      "lastname": "Abbeel",
+      "company": "Amazon / UC Berkeley",
+      "jobtitle": "Amazon Scholar & Professor",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-10-14T21:54:34.343Z",
+      "company_associations": [
+        {"id": "184437587642", "type": "contact_to_company"}
+      ],
+      "photo": null
+    },
+    {
+      "id": "328282095302",
+      "email": "feifei@worldlabs.ai",
+      "firstname": "Fei-Fei",
+      "lastname": "Li",
+      "company": "World Labs",
+      "jobtitle": "Co-Founder & CEO",
+      "city": "San Francisco",
+      "state": "California",
+      "country": "USA",
+      "website": "https://www.worldlabs.ai",
+      "lifecyclestage": "lead",
+      "hs_analytics_source": "OFFLINE",
+      "createdate": "2025-11-19T18:45:11.646Z",
+      "company_associations": [
+        {"id": "219597739716", "type": "contact_to_company"}
+      ],
+      "photo": "https://media.licdn.com/dms/image/v2/C4E03AQGMvj8xNAcZHg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1589346710911?e=2147483647&v=beta&t=3b9tjXzRkKxoxBpgtmkw3VQx4LWVuYlyVpeKnengs_4"
+    }
+  ]
+}

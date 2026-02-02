@@ -1,0 +1,708 @@
+<project_specification>
+  <project_name>EMBODEX CRM</project_name>
+
+  <app_type>crud</app_type>
+
+  <overview>
+    A modern, streamlined CRM for managing AI lab and robotics company contacts, communications, and deals pipeline. Built for EMBODEX to replace HubSpot with a faster, simpler, and free alternative.
+
+    Key goals:
+    - Dark mode default with light mode toggle
+    - Command palette (⌘K) for quick navigation
+    - Activity timeline for tracking all communications
+    - Kanban pipeline for deals
+    - Migration of 46 existing HubSpot contacts
+    - Linear/Notion/Superhuman-inspired minimal UI
+  </overview>
+
+  <technology_stack>
+    <frontend>
+      <framework>Next.js 14+ with App Router and TypeScript</framework>
+      <styling>Tailwind CSS with shadcn/ui components</styling>
+      <state_management>React hooks, Convex real-time subscriptions</state_management>
+      <routing>Next.js App Router</routing>
+      <port>Only launch on port 3000</port>
+    </frontend>
+    <backend>
+      <runtime>Convex serverless functions</runtime>
+      <database>Convex (real-time document database)</database>
+    </backend>
+    <communication>
+      <api>Convex queries, mutations, and actions</api>
+      Real-time subscriptions for live updates
+    </communication>
+  </technology_stack>
+
+  <prerequisites>
+    <environment_setup>
+      - Project scaffolded with Next.js 14+, Convex, Clerk, shadcn/ui
+      - Clerk configured for authentication
+      - Convex dev server running
+      - All shadcn/ui components installed as needed
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <authentication>
+      - Clerk-based authentication (pre-configured by scaffolding)
+      - Protected routes requiring sign-in
+      - User profile in sidebar/header
+    </authentication>
+
+    <dashboard>
+      - Quick stats cards: total contacts, hot leads, deals in pipeline, tasks due today
+      - Today's tasks widget with overdue highlighting
+      - Recent activity feed (last 10 activities)
+      - Pipeline summary by stage
+      - Quick action buttons: Add Contact, Log Call, New Task
+    </dashboard>
+
+    <contacts>
+      - Contact list with search, sort, and filter
+      - Filters: by category (ai_lab, robotics, investor, etc.), priority (hot/warm/cold), lead status, tags, last contacted
+      - Contact detail page with:
+        - Header: avatar, name, role, company, priority badge
+        - Contact info: email, phone, linkedin, twitter
+        - Activity timeline (chronological, filterable by type)
+        - Quick log buttons (call, email, meeting, note)
+        - Related deals section
+        - Edit contact modal
+      - Create/edit contact form with all properties
+      - Contact properties: firstName, lastName, email, phone, linkedIn, twitter, role, companyId, category, priority, leadStatus, tags, notes, photoUrl, timezone, lastContactedAt, nextFollowUpAt, hubspotId
+    </contacts>
+
+    <companies>
+      - Company list with search and filter
+      - Filters: by category, size, tags
+      - Company detail page with:
+        - Header: logo, name, industry, category badge
+        - Company info: website, size, valuation, funding stage
+        - Associated contacts list
+        - Activity timeline (all activities for company contacts)
+        - Related deals
+      - Create/edit company form
+      - Company properties: name, website, industry, category, size, valuation, fundingStage, description, logoUrl, address, tags, hubspotId
+    </companies>
+
+    <activities>
+      - Activity types: email, call, meeting, linkedin, note, task
+      - Activity properties: contactId, companyId, dealId, type, direction (inbound/outbound/na), subject, content, outcome, duration, scheduledAt, completedAt, attachments
+      - Log activity modal with type-specific fields
+      - Activity timeline component (reusable for contacts, companies, deals)
+      - Quick log buttons on contact/company pages
+      - Duration tracking for calls and meetings
+      - Outcome tracking for calls (connected, no_answer, left_message, busy)
+      - Create follow-up task from any activity
+    </activities>
+
+    <deals_pipeline>
+      - Kanban board with drag-and-drop between stages
+      - Stages: Lead, Qualified, Proposal, Negotiation, Closed Won, Closed Lost
+      - Deal cards showing: name, company, value, days in stage
+      - Deal detail page with:
+        - Deal info: name, value, probability, expected close date
+        - Associated contact and company
+        - Activity timeline
+        - Stage history
+      - Create/edit deal form
+      - Deal properties: name, companyId, contactId, stage, value, probability, expectedCloseDate, lostReason, notes
+      - Pipeline summary stats
+    </deals_pipeline>
+
+    <tasks>
+      - Task list page with filters (today, upcoming, overdue, completed)
+      - Task properties: title, contactId, companyId, dealId, type, priority, dueAt, completedAt, notes
+      - Today's tasks widget on dashboard
+      - Overdue tasks highlighted in red
+      - Quick complete checkbox
+      - Create task from activities or standalone
+    </tasks>
+
+    <search>
+      - Global command palette (⌘K)
+      - Search contacts by name, email, company
+      - Search companies by name
+      - Quick actions: New Contact, New Company, Log Call, New Task
+      - Recent items
+      - Keyboard navigation
+    </search>
+
+    <settings>
+      - User profile settings (via Clerk)
+      - Theme toggle (dark/light mode)
+      - Tag management (create, edit, delete tags)
+      - CSV import for contacts
+      - CSV export for contacts
+      - Data displayed uses JetBrains Mono for monospace elements
+    </settings>
+
+    <ui_polish>
+      - Loading states with skeletons
+      - Empty states with helpful actions
+      - Error states with retry options
+      - Toast notifications for actions
+      - Keyboard shortcuts throughout
+      - Responsive design (mobile, tablet, desktop)
+      - Smooth transitions (150-300ms)
+    </ui_polish>
+  </core_features>
+
+  <database_schema>
+    <tables>
+      <contacts>
+        - _id (Convex ID, primary key)
+        - firstName (string, required)
+        - lastName (string, required)
+        - email (string, optional)
+        - phone (string, optional)
+        - linkedIn (string, optional)
+        - twitter (string, optional)
+        - role (string, optional)
+        - companyId (Id<"companies">, optional)
+        - category (string: "ai_lab" | "robotics" | "investor" | "partner" | "contractor" | "other")
+        - priority (string: "hot" | "warm" | "cold")
+        - leadStatus (string: "new" | "contacted" | "qualified" | "proposal" | "won" | "lost")
+        - tags (string[], optional)
+        - notes (string, optional)
+        - photoUrl (string, optional)
+        - timezone (string, optional)
+        - lastContactedAt (number, optional)
+        - nextFollowUpAt (number, optional)
+        - hubspotId (string, optional - for migration)
+        - createdAt (number)
+        - updatedAt (number)
+        - createdBy (string - Clerk user ID)
+      </contacts>
+
+      <companies>
+        - _id (Convex ID, primary key)
+        - name (string, required)
+        - website (string, optional)
+        - industry (string, optional)
+        - category (string: "ai_lab" | "robotics_company" | "tech_giant" | "university" | "investor" | "contractor" | "other")
+        - size (string: "startup" | "small" | "medium" | "enterprise", optional)
+        - valuation (string, optional - e.g., "$5.6B")
+        - fundingStage (string, optional - e.g., "Series B")
+        - description (string, optional)
+        - logoUrl (string, optional)
+        - address (object: {street, city, state, country, zip}, optional)
+        - tags (string[], optional)
+        - hubspotId (string, optional)
+        - createdAt (number)
+        - updatedAt (number)
+      </companies>
+
+      <activities>
+        - _id (Convex ID, primary key)
+        - contactId (Id<"contacts">, optional)
+        - companyId (Id<"companies">, optional)
+        - dealId (Id<"deals">, optional)
+        - type (string: "email" | "call" | "meeting" | "linkedin" | "note" | "task")
+        - direction (string: "inbound" | "outbound" | "na")
+        - subject (string, optional)
+        - content (string, optional - rich text/markdown)
+        - outcome (string: "connected" | "no_answer" | "left_message" | "busy" | "wrong_number", optional)
+        - duration (number, optional - minutes)
+        - scheduledAt (number, optional)
+        - completedAt (number, optional)
+        - attachments (string[], optional - URLs)
+        - createdAt (number)
+        - createdBy (string - Clerk user ID)
+      </activities>
+
+      <deals>
+        - _id (Convex ID, primary key)
+        - name (string, required)
+        - companyId (Id<"companies">, optional)
+        - contactId (Id<"contacts">, optional)
+        - stage (string: "lead" | "qualified" | "proposal" | "negotiation" | "won" | "lost")
+        - value (number, optional - in dollars)
+        - probability (number, optional - 0-100)
+        - expectedCloseDate (number, optional)
+        - lostReason (string, optional)
+        - notes (string, optional)
+        - createdAt (number)
+        - updatedAt (number)
+        - createdBy (string)
+      </deals>
+
+      <tasks>
+        - _id (Convex ID, primary key)
+        - title (string, required)
+        - contactId (Id<"contacts">, optional)
+        - companyId (Id<"companies">, optional)
+        - dealId (Id<"deals">, optional)
+        - type (string: "call" | "email" | "meeting" | "other")
+        - priority (string: "high" | "medium" | "low")
+        - dueAt (number, optional)
+        - completedAt (number, optional)
+        - notes (string, optional)
+        - createdAt (number)
+        - createdBy (string)
+      </tasks>
+
+      <tags>
+        - _id (Convex ID, primary key)
+        - name (string, required, unique)
+        - color (string, optional - hex color)
+        - createdAt (number)
+      </tags>
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <contacts>
+      - query contacts.list (with search, filters, pagination)
+      - query contacts.get (single contact by ID)
+      - mutation contacts.create
+      - mutation contacts.update
+      - mutation contacts.delete
+      - mutation contacts.updateLastContacted (auto-updates on activity log)
+    </contacts>
+
+    <companies>
+      - query companies.list (with search, filters)
+      - query companies.get (single company by ID)
+      - query companies.getContacts (contacts for a company)
+      - mutation companies.create
+      - mutation companies.update
+      - mutation companies.delete
+    </companies>
+
+    <activities>
+      - query activities.listForContact (timeline for contact)
+      - query activities.listForCompany (timeline for company)
+      - query activities.listForDeal (timeline for deal)
+      - query activities.listRecent (for dashboard feed)
+      - mutation activities.log (create new activity)
+      - mutation activities.update
+      - mutation activities.delete
+    </activities>
+
+    <deals>
+      - query deals.list (all deals, optionally by stage)
+      - query deals.get (single deal by ID)
+      - query deals.pipelineSummary (counts by stage)
+      - mutation deals.create
+      - mutation deals.update
+      - mutation deals.updateStage (for drag-and-drop)
+      - mutation deals.delete
+    </deals>
+
+    <tasks>
+      - query tasks.listToday (due today or overdue)
+      - query tasks.listUpcoming (future tasks)
+      - query tasks.listCompleted
+      - query tasks.listForContact
+      - mutation tasks.create
+      - mutation tasks.complete
+      - mutation tasks.update
+      - mutation tasks.delete
+    </tasks>
+
+    <tags>
+      - query tags.list
+      - mutation tags.create
+      - mutation tags.update
+      - mutation tags.delete
+    </tags>
+
+    <search>
+      - query search.global (contacts, companies, deals by query string)
+    </search>
+
+    <import_export>
+      - action import.contactsFromCSV
+      - action export.contactsToCSV
+    </import_export>
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure>
+      - Sidebar navigation (collapsible on mobile)
+      - Main content area
+      - Command palette overlay (⌘K)
+      - Toast notification area (bottom right)
+    </main_structure>
+
+    <sidebar>
+      - Logo at top (EMBODEX)
+      - Navigation links with icons:
+        - Dashboard (home icon)
+        - Contacts (users icon)
+        - Companies (building icon)
+        - Pipeline (kanban icon)
+        - Tasks (checkbox icon)
+        - Settings (gear icon)
+      - User profile at bottom (Clerk UserButton)
+      - Theme toggle button
+      - Collapsible on mobile (hamburger menu)
+    </sidebar>
+
+    <dashboard_page>
+      - Welcome message with user name
+      - Stats cards row: Total Contacts, Hot Leads, Pipeline Value, Tasks Due
+      - Two-column layout:
+        - Left: Today's Tasks widget, Quick Actions
+        - Right: Recent Activity feed
+      - Pipeline summary bar chart
+    </dashboard_page>
+
+    <contacts_page>
+      - Header: "Contacts" title, search input, filter dropdowns, "Add Contact" button
+      - Table view with columns: Name, Company, Role, Priority, Status, Last Contacted
+      - Click row to go to contact detail
+      - Pagination at bottom
+    </contacts_page>
+
+    <contact_detail_page>
+      - Back button
+      - Header card: avatar, name, role @ company, priority badge, edit button
+      - Two-column layout:
+        - Left: Contact info card (email, phone, linkedin, twitter, timezone)
+        - Right: Quick actions (Log Call, Log Email, Log Meeting, Add Note)
+      - Activity timeline (full width below)
+      - Related deals section
+      - Related tasks section
+    </contact_detail_page>
+
+    <companies_page>
+      - Similar structure to contacts page
+      - Table columns: Name, Industry, Category, Size, Contacts Count
+    </companies_page>
+
+    <company_detail_page>
+      - Header: logo, name, industry, category badge
+      - Info card: website, valuation, funding stage, description
+      - Associated contacts list (clickable)
+      - Activity timeline (aggregated from all contacts)
+      - Related deals
+    </company_detail_page>
+
+    <pipeline_page>
+      - Header: "Pipeline" title, "New Deal" button, view toggle (Kanban/List)
+      - Kanban board with columns for each stage
+      - Deal cards: name, company name, value, days in stage
+      - Drag and drop between columns
+      - Click card to open deal detail sheet
+    </pipeline_page>
+
+    <tasks_page>
+      - Header: "Tasks" title, filter tabs (Today, Upcoming, Completed), "New Task" button
+      - Task list with checkboxes
+      - Each task shows: title, due date, priority badge, related contact/company
+      - Click to edit in sheet
+    </tasks_page>
+
+    <settings_page>
+      - Tabbed interface:
+        - Profile (Clerk profile management)
+        - Appearance (theme toggle)
+        - Tags (manage tags)
+        - Import (CSV upload)
+        - Export (download CSV)
+    </settings_page>
+
+    <modals_overlays>
+      - Command palette (⌘K) - full screen overlay with search input
+      - Add/Edit Contact sheet (slide from right)
+      - Add/Edit Company sheet
+      - Add/Edit Deal sheet
+      - Log Activity modal (centered dialog)
+      - Add Task modal
+      - Confirmation dialogs for destructive actions
+      - Toast notifications
+    </modals_overlays>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      Dark Mode (default):
+      - Background: #09090B (zinc-950)
+      - Card/Surface: #18181B (zinc-900)
+      - Border: #27272A (zinc-800)
+      - Muted Text: #71717A (zinc-500)
+      - Text: #FAFAFA (zinc-50)
+      - Primary: #6366F1 (indigo-500)
+      - Primary Hover: #4F46E5 (indigo-600)
+      - Success: #22C55E (green-500)
+      - Warning: #F59E0B (amber-500)
+      - Error: #EF4444 (red-500)
+
+      Light Mode:
+      - Background: #FAFAFA (zinc-50)
+      - Card/Surface: #FFFFFF
+      - Border: #E4E4E7 (zinc-200)
+      - Muted Text: #71717A (zinc-500)
+      - Text: #18181B (zinc-900)
+      - Primary: #4F46E5 (indigo-600)
+
+      Priority Colors:
+      - Hot: #EF4444 (red-500)
+      - Warm: #F59E0B (amber-500)
+      - Cold: #3B82F6 (blue-500)
+
+      Category Colors (badges):
+      - AI Lab: #8B5CF6 (violet-500)
+      - Robotics: #06B6D4 (cyan-500)
+      - Investor: #22C55E (green-500)
+      - Partner: #F59E0B (amber-500)
+    </color_palette>
+
+    <typography>
+      - Font family: Inter for UI, JetBrains Mono for data/code
+      - Headings: font-semibold
+      - Body: font-normal, 14px base (text-sm)
+      - Small: 12px (text-xs)
+      - Monospace data: JetBrains Mono for emails, phone numbers, IDs
+    </typography>
+
+    <components>
+      Buttons:
+      - Primary: bg-indigo-500 hover:bg-indigo-600 text-white
+      - Secondary: bg-zinc-800 hover:bg-zinc-700 text-white (dark), bg-zinc-200 (light)
+      - Ghost: transparent hover:bg-zinc-800/50
+      - Destructive: bg-red-500 hover:bg-red-600
+
+      Inputs:
+      - bg-zinc-900 border-zinc-800 focus:ring-indigo-500 (dark)
+      - Rounded-md, medium size by default
+
+      Cards:
+      - bg-zinc-900 border border-zinc-800 rounded-lg (dark)
+      - Subtle shadow on hover
+
+      Tables:
+      - Header: bg-zinc-900, text-zinc-400, uppercase text-xs
+      - Rows: border-b border-zinc-800, hover:bg-zinc-800/50
+      - Alternating row colors optional
+
+      Badges:
+      - Small, rounded-full, colored background with text
+      - Priority and category badges
+
+      Avatars:
+      - Rounded-full, fallback to initials
+      - Sizes: sm (24px), md (32px), lg (48px)
+    </components>
+
+    <animations>
+      - Transitions: 150ms ease for hovers, 200ms for modals
+      - Fade in for page content
+      - Slide in from right for sheets
+      - Scale up for modals
+      - Smooth drag and drop for pipeline
+      - Skeleton loading animations
+    </animations>
+  </design_system>
+
+  <key_interactions>
+    <logging_activity>
+      1. User clicks "Log Call" button on contact page
+      2. Modal opens with pre-selected "call" type and contact
+      3. User fills in: subject, notes, outcome, duration
+      4. User clicks "Log Activity"
+      5. Activity appears in timeline, lastContactedAt updated
+      6. Toast confirmation shown
+    </logging_activity>
+
+    <moving_deal>
+      1. User drags deal card from "Qualified" to "Proposal" column
+      2. Card animates to new column
+      3. Stage updated in database
+      4. Activity logged: "Deal moved to Proposal stage"
+      5. Deal card shows "0 days in stage"
+    </moving_deal>
+
+    <creating_contact>
+      1. User presses ⌘K, types "new contact"
+      2. Selects "New Contact" action
+      3. Contact form sheet slides in from right
+      4. User fills required fields (first name, last name)
+      5. User selects company from dropdown (or creates new)
+      6. User clicks "Create Contact"
+      7. Sheet closes, contact appears in list
+      8. Toast: "Contact created successfully"
+    </creating_contact>
+
+    <searching>
+      1. User presses ⌘K anywhere in app
+      2. Command palette opens with search input focused
+      3. User types "sam"
+      4. Results show: "Sam Altman" contact, recent items
+      5. User arrows down to select, presses Enter
+      6. Navigates to Sam Altman's contact page
+      7. Command palette closes
+    </searching>
+
+    <completing_task>
+      1. User sees task in "Today's Tasks" widget
+      2. User clicks checkbox
+      3. Task marked complete with strikethrough
+      4. Fades and moves to completed section
+      5. Stats update (tasks due count decreases)
+    </completing_task>
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Foundation - Schema and Basic CRUD</title>
+      <tasks>
+        - Create Convex schema for all tables (contacts, companies, activities, deals, tasks, tags)
+        - Implement basic CRUD mutations and queries for contacts
+        - Implement basic CRUD for companies
+        - Set up Clerk authentication protection
+        - Create basic layout component with sidebar
+      </tasks>
+    </step>
+
+    <step number="2">
+      <title>Core UI - Layout and Navigation</title>
+      <tasks>
+        - Build sidebar navigation component
+        - Implement theme toggle (dark/light mode) with persistence
+        - Create page layouts for all routes
+        - Build command palette component (⌘K)
+        - Add global keyboard shortcut handling
+        - Implement toast notification system
+      </tasks>
+    </step>
+
+    <step number="3">
+      <title>Dashboard</title>
+      <tasks>
+        - Build stats cards component
+        - Create today's tasks widget
+        - Build recent activity feed
+        - Implement quick action buttons
+        - Add pipeline summary chart
+        - Connect all widgets to real data
+      </tasks>
+    </step>
+
+    <step number="4">
+      <title>Contacts Module</title>
+      <tasks>
+        - Build contacts list page with DataTable
+        - Implement search functionality
+        - Add filter dropdowns (category, priority, status, tags)
+        - Create contact detail page
+        - Build contact form (create/edit) in sheet
+        - Add contact avatar with initials fallback
+        - Implement delete with confirmation
+      </tasks>
+    </step>
+
+    <step number="5">
+      <title>Companies Module</title>
+      <tasks>
+        - Build companies list page
+        - Create company detail page
+        - Show associated contacts on company page
+        - Build company form (create/edit)
+        - Link companies to contacts (dropdown selector)
+        - Implement company logo display
+      </tasks>
+    </step>
+
+    <step number="6">
+      <title>Activities and Timeline</title>
+      <tasks>
+        - Build activity timeline component
+        - Create log activity modal for each type (call, email, meeting, linkedin, note)
+        - Implement type-specific fields (outcome for calls, duration for meetings)
+        - Add quick log buttons to contact/company pages
+        - Auto-update lastContactedAt on contact when activity logged
+        - Add activity filtering by type
+        - Create follow-up task from activity
+      </tasks>
+    </step>
+
+    <step number="7">
+      <title>Deals Pipeline</title>
+      <tasks>
+        - Build Kanban board with dnd-kit or similar
+        - Create deal cards with info display
+        - Implement drag-and-drop stage updates
+        - Build deal detail sheet
+        - Create deal form (create/edit)
+        - Add pipeline summary stats
+        - Link deals to contacts and companies
+        - Track days in stage
+      </tasks>
+    </step>
+
+    <step number="8">
+      <title>Tasks Module</title>
+      <tasks>
+        - Build tasks list page with filters
+        - Create task form (create/edit)
+        - Implement quick complete checkbox
+        - Add overdue highlighting
+        - Link tasks to contacts/companies/deals
+        - Integrate with dashboard widget
+      </tasks>
+    </step>
+
+    <step number="9">
+      <title>Settings and Data Management</title>
+      <tasks>
+        - Build settings page with tabs
+        - Create tag management UI
+        - Implement CSV import for contacts
+        - Implement CSV export for contacts
+        - Add data validation on import
+      </tasks>
+    </step>
+
+    <step number="10">
+      <title>Polish and Refinement</title>
+      <tasks>
+        - Add loading skeletons for all data-fetching pages
+        - Create empty states with helpful actions
+        - Implement error boundaries and error states
+        - Add keyboard shortcuts throughout (⌘N for new, etc.)
+        - Ensure responsive design works on mobile/tablet
+        - Optimize performance (pagination, lazy loading)
+        - Test all flows end-to-end
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - All CRUD operations for contacts, companies, activities, deals, tasks work correctly
+      - Real-time updates (Convex subscriptions) show changes immediately
+      - Command palette (⌘K) searches and navigates correctly
+      - Drag-and-drop pipeline works smoothly
+      - Activity timeline displays correctly and filters work
+      - Theme toggle persists preference
+      - CSV import/export functions correctly
+    </functionality>
+
+    <user_experience>
+      - App feels fast and responsive (no loading spinners > 500ms on normal data)
+      - Dark mode is default and looks polished
+      - Navigation is intuitive - users can find features without instructions
+      - Forms have proper validation with helpful error messages
+      - Keyboard shortcuts work as expected
+      - Mobile layout is usable for basic tasks
+    </user_experience>
+
+    <technical_quality>
+      - Clean, maintainable TypeScript code
+      - Proper error handling throughout
+      - No console errors in normal usage
+      - Convex functions are properly typed
+      - Responsive design breakpoints work correctly
+    </technical_quality>
+
+    <design_polish>
+      - Consistent use of design system colors
+      - Smooth animations and transitions
+      - Professional, minimal aesthetic (Linear/Notion-inspired)
+      - Loading states and empty states are designed
+      - Icons are consistent (using Lucide icons)
+    </design_polish>
+  </success_criteria>
+</project_specification>
